@@ -76,6 +76,7 @@ layout = html.Div(children=[
                     options=[
                         {'label': 'Viertelstunden', 'value': 'quarter'},
                         {'label': 'Zählerwerte', 'value': 'meter'},
+                        {'label': 'Standardlastprofil', 'value': 'dlp'},
                     ],
                     value=[],
                     labelStyle={'display': 'inline-block'},

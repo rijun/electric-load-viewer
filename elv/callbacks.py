@@ -131,7 +131,8 @@ def update_day(date, selector):
     """Update the detail graph."""
     m = True if 'meter' in selector else False
     q = True if 'quarter' in selector else False
-    return figures.create_detail_figure(date, quarter=q, meter=m)
+    d = True if 'dlp' in selector else False
+    return figures.create_detail_figure(date, quarter=q, meter=m, default_load_profile=d)
 
 
 @app.callback(Output('table', 'data'),

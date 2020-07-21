@@ -2,6 +2,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from elv import dh
+from elv import dlp
 
 
 def create_overview_figure(kind='bar', fill=False, markers=False):
@@ -65,7 +66,7 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
     return fig
 
 
-def create_detail_figure(date: str, quarter: bool, meter: bool):
+def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_profile: bool):
     # Create figure with secondary y-axis
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -100,6 +101,15 @@ def create_detail_figure(date: str, quarter: bool, meter: bool):
                 secondary_y=True,
             )
             fig.update_yaxes(title_text="kW", secondary_y=True)
+
+        if default_load_profile:
+            dlp_df = dlp.calculate_profile(date)
+            dlp_df = dlp_df.resample(rule).sum()
+
+            fig.add_trace(
+                go.Bar(x=dlp_df.index.time, y=dlp_df.values, name="Standard Last Profil"),
+                secondary_y=False,
+            )
 
     return fig
 
