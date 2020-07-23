@@ -36,6 +36,12 @@ class DefaultLoadProfile:
         df = pd.merge(df, profil.transpose(), how='left', left_on=['season_type', 'day_type'], right_index=True,
                       suffixes=('', '_y'))
         df.drop(df.filter(regex='_y$').columns.tolist(), axis=1, inplace=True)
+        # Calculate energy used in one year
+        if df.index.size < 365: # Dataset smaller than one year
+            energy_used = df.sum(axis=1).div(4).sum()
+            energy_used = energy_used / df.index.size * 365  # Scale to one year
+        else:
+            energy_used = df.iloc[-366:-1].sum(axis=1).div(4).sum()  # Calculate sum of last 365 values
         # Create dynamic values out of static values
         dynamics = pd.read_csv('dynamisierung.csv')
         dynamics = dynamics.set_index('day_no')
@@ -53,8 +59,9 @@ class DefaultLoadProfile:
         # Clean generated DataFrame
         df.index.name = ""
         df = df.drop(['day_of_year', 'day_of_week', 'day_type', 'season_type'], axis=1)
-        # Convert values to kWh
-        df = df.div(1000)
+        # Convert values to kWh and scale to fit normalized values
+        print(energy_used)
+        df = df.mul(energy_used / 1000000).div(1000)
         self._df = df
 
     @classmethod
