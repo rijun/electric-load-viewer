@@ -1,71 +1,48 @@
 import datetime
 
 import holidays
-import numpy as np
 import pandas as pd
-
-from elv import datahandler
 
 
 class DefaultLoadProfile:
     _holidays = holidays.Germany()
 
-    def __init__(self, data_handler: datahandler.DataHandler):
-        self._df = None
-        self._dh = data_handler
+    def __init__(self):
+        """
+        A class to calculate the default load profile of a given day.
+        """
+        self._static_lookup = pd.read_csv('profile.csv', header=[0, 1], index_col=0).transpose()
+        self._dynamic_lookup = pd.read_csv('dynamisierung.csv').set_index('day_no')
 
-    def calculate_profile(self, date: str):
-        if self._df is None:
-            self._generate_profile()
+    def calculate_profile(self, date: str, energy_usage: float = 1000):
+        """
+        For a given date, calculate the default load profile with respect to the day type and season.
 
-        ret = self._df.loc[date]
-        ret.index = pd.date_range(start=date, periods=len(ret), freq='15T')
-        return ret
+        :param date: Date for which the default load profile should be calculated
+        :param energy_usage: Yearly energy usage in kWh, defaults to 1000 kWh if not specified.
+        :return: Pandas series with the values from 0:15 to 0:00 the next day
+        """
+        date = datetime.date.fromisoformat(date)
+        idx = pd.date_range(date, date + datetime.timedelta(1), freq='15T')[1:]
+        ret_data = self._dynamic_profile_values(date, energy_usage)
+        ret_data.index = idx
+        return ret_data
 
-    def _generate_profile(self):
-        # Generate DataFrame with required dates
-        idx = pd.date_range(self._dh.first_date(), self._dh.last_date(), freq='D')
-        df = pd.DataFrame(index=idx)
-        df['day_of_year'] = df.index.dayofyear
-        df['day_of_week'] = df.index.dayofweek
-        # Mark each date according to day type and season
-        df['day_type'] = df.index.to_series().apply(self._day_type)
-        df['season_type'] = df.index.to_series().apply(self._season_type)
-        # Create static load profile
-        profil = pd.read_csv('profile.csv', header=[0, 1], index_col=0)
-        df = pd.merge(df, profil.transpose(), how='left', left_on=['season_type', 'day_type'], right_index=True,
-                      suffixes=('', '_y'))
-        df.drop(df.filter(regex='_y$').columns.tolist(), axis=1, inplace=True)
-        # Calculate energy used in one year
-        if df.index.size < 365: # Dataset smaller than one year
-            energy_used = df.sum(axis=1).div(4).sum()
-            energy_used = energy_used / df.index.size * 365  # Scale to one year
-        else:
-            energy_used = df.iloc[-366:-1].sum(axis=1).div(4).sum()  # Calculate sum of last 365 values
-        # Create dynamic values out of static values
-        dynamics = pd.read_csv('dynamisierung.csv')
-        dynamics = dynamics.set_index('day_no')
-        col_list = df.columns[4:]
-        row_list = []
-        for row in df.itertuples(index=False):
-            arr = np.array(list(row)[4:])
-            row_list.append(np.round_(arr * dynamics.loc[row[0]]['value'], 1))
-        df_dyn = pd.DataFrame(row_list)
-        df_dyn.columns = col_list
-        df_dyn.head()
-        # Replace static values in DataFrame with dynamic ones
-        df = df.drop(columns=df.columns[4:])
-        df = pd.concat([df.reset_index(), df_dyn], axis=1).set_index('index')
-        # Clean generated DataFrame
-        df.index.name = ""
-        df = df.drop(['day_of_year', 'day_of_week', 'day_type', 'season_type'], axis=1)
-        # Convert values to kWh and scale to fit normalized values
-        print(energy_used)
-        df = df.mul(energy_used / 1000000).div(1000)
-        self._df = df
+    def _static_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
+        """Calculate the static profile values for the provided day."""
+        ret_values = self._static_lookup.loc[self._season_type(date), self._day_type(date)]
+        ret_values = ret_values.mul(1E-3).mul(energy_usage / 1000)    # Scale values kW and to account for normalization
+        return ret_values
+
+    def _dynamic_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
+        """Calculate the dynamic profile values for the provided day."""
+        return self._static_profile_values(date, energy_usage)\
+            .mul(self._dynamic_lookup.loc[date.timetuple().tm_yday]['value'])\
+            .round(1)
 
     @classmethod
     def _day_type(cls, d):
+        """Returns the type of day according to the default load profile specifications."""
         if d in cls._holidays or d.isoweekday() == 7:
             return "sunday"
         # Handle christmas eve
@@ -81,13 +58,14 @@ class DefaultLoadProfile:
 
     @staticmethod
     def _season_type(d):
-        if d < datetime.datetime(d.year, 3, 21):
+        """Returns the corresponding season according to the default load profile specifications."""
+        if d < datetime.date(d.year, 3, 21):
             return "winter"
-        elif d < datetime.datetime(d.year, 5, 15):
+        elif d < datetime.date(d.year, 5, 15):
             return "transition"
-        elif d < datetime.datetime(d.year, 9, 15):
+        elif d < datetime.date(d.year, 9, 15):
             return "summer"
-        elif d < datetime.datetime(d.year, 11, 1):
+        elif d < datetime.date(d.year, 11, 1):
             return "transition"
         else:
             return "winter"

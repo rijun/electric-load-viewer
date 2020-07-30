@@ -104,3 +104,18 @@ class DataHandler:
         start = self.first_date() if start is None else start
         end = self.last_date() if end is None else end
         return round(float(self._overview_df[start:end]['diff'].sum()), 2)
+
+    def yearly_energy_usage(self):
+        """
+        Calculate the previous yearly energy usage.
+
+        If the number of days in the dataset is > 365 (one year), the sum of all meter values for the last 365 days is
+        returned. Otherwise, the currently stored meter values are summed up and interpolated to the a duration of one
+        year.
+        """
+        if self._df.index.size < 365:  # Dataset smaller than one year
+            energy_used = self._df.sum(axis=1).div(4).sum()
+            energy_used = energy_used / self._df.index.size * 365  # Scale to one year
+        else:
+            energy_used = self._df.iloc[-366:-1].sum(axis=1).div(4).sum()  # Calculate sum of last 365 values
+        return round(energy_used / 1000, 2)  # Convert Wh to kWh

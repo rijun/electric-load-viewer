@@ -103,8 +103,8 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
             fig.update_yaxes(title_text="kW", secondary_y=True)
 
         if default_load_profile:
-            dlp_df = dlp.calculate_profile(date)
-            dlp_df = dlp_df.resample(rule).sum()
+            dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage())
+            dlp_df = dlp_data.resample(rule).sum()
 
             fig.add_trace(
                 go.Bar(x=dlp_df.index.time, y=dlp_df.values, name="Standard Last Profil"),
