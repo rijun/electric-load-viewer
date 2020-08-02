@@ -17,18 +17,25 @@ class DefaultLoadProfile:
         self._static_lookup = pd.read_csv(p / 'profile.csv', header=[0, 1], index_col=0).transpose()
         self._dynamic_lookup = pd.read_csv(p / 'dynamisierung.csv').set_index('day_no')
 
-    def calculate_profile(self, date: str, energy_usage: float = 1000):
+    def calculate_profile(self, date: str, energy_usage: float = 1000, shift=False):
         """
         For a given date, calculate the default load profile with respect to the day type and season.
 
         :param date: Date for which the default load profile should be calculated
         :param energy_usage: Yearly energy usage in kWh, defaults to 1000 kWh if not specified.
-        :return: Pandas series with the values from 0:15 to 0:00 the next day
+        :param shift: Shift the index by 15 minutes to the left, e.g. 0:00-23:45 instead of 0:15-0:00
+        :return: Pandas series with the default load profile values for the passed day
         """
         date = datetime.date.fromisoformat(date)
-        idx = pd.date_range(date, date + datetime.timedelta(1), freq='15T')[1:]
         ret_data = self._dynamic_profile_values(date, energy_usage)
+
+        # Adjust index
+        if shift:
+            idx = pd.date_range(date, date + datetime.timedelta(1), freq='15T')[:-1]
+        else:
+            idx = pd.date_range(date, date + datetime.timedelta(1), freq='15T')[1:]
         ret_data.index = idx
+
         return ret_data
 
     def _static_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
