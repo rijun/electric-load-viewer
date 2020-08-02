@@ -1,4 +1,6 @@
 import datetime
+import os
+import pathlib
 
 import holidays
 import pandas as pd
@@ -11,8 +13,9 @@ class DefaultLoadProfile:
         """
         A class to calculate the default load profile of a given day.
         """
-        self._static_lookup = pd.read_csv('profile.csv', header=[0, 1], index_col=0).transpose()
-        self._dynamic_lookup = pd.read_csv('dynamisierung.csv').set_index('day_no')
+        p = pathlib.Path(os.path.realpath(__file__)).parent
+        self._static_lookup = pd.read_csv(p / 'profile.csv', header=[0, 1], index_col=0).transpose()
+        self._dynamic_lookup = pd.read_csv(p / 'dynamisierung.csv').set_index('day_no')
 
     def calculate_profile(self, date: str, energy_usage: float = 1000):
         """
@@ -31,13 +34,13 @@ class DefaultLoadProfile:
     def _static_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
         """Calculate the static profile values for the provided day."""
         ret_values = self._static_lookup.loc[self._season_type(date), self._day_type(date)]
-        ret_values = ret_values.mul(1E-3).mul(energy_usage / 1000)    # Scale values kW and to account for normalization
+        ret_values = ret_values.mul(1E-3).mul(energy_usage / 1000)  # Scale values kW and to account for normalization
         return ret_values
 
     def _dynamic_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
         """Calculate the dynamic profile values for the provided day."""
-        return self._static_profile_values(date, energy_usage)\
-            .mul(self._dynamic_lookup.loc[date.timetuple().tm_yday]['value'])\
+        return self._static_profile_values(date, energy_usage) \
+            .mul(self._dynamic_lookup.loc[date.timetuple().tm_yday]['value']) \
             .round(1)
 
     @classmethod

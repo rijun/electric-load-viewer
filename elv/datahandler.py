@@ -1,3 +1,4 @@
+import os
 import pathlib
 import sqlite3
 from typing import List, Optional
@@ -9,7 +10,8 @@ class DataHandler:
     def __init__(self):
         """Class to retrieve and prepare the meter data for later use in the callbacks."""
         # Get meter data
-        self._db_path = pathlib.Path("itp.db")
+        p = pathlib.Path(os.path.realpath(__file__)).parent
+        self._db_path = p / '..' / 'itp.db'
         if not self._db_path.exists():
             print("Database file not found! Exiting...")
             exit(-1)

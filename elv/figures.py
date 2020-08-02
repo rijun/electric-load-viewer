@@ -2,7 +2,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from elv import dh
-from elv import dlp
+from default_load_profile import DefaultLoadProfile
 
 
 def create_overview_figure(kind='bar', fill=False, markers=False):
@@ -26,7 +26,8 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
     # Add traces
     if kind == 'line':
         fig.add_trace(
-            go.Scatter(x=x_values, y=df['diff'], name="Lastgang", line={'shape': 'spline'}, fill=plot_fill, mode=plot_mode)
+            go.Scatter(x=x_values, y=df['diff'], name="Lastgang", line={'shape': 'spline'}, fill=plot_fill,
+                       mode=plot_mode)
         )
     else:
         fig.add_trace(
