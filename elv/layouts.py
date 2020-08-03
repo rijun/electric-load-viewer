@@ -63,26 +63,29 @@ layout = html.Div(children=[
             ]),
             html.Div(className="row", children=[
                 html.H3(style={'margin': 5}, children="Detailansicht"),
-                dcc.DatePickerSingle(
-                    id='date-picker-single',
-                    min_date_allowed=dh.first_date(),
-                    max_date_allowed=dh.last_date(),
-                    initial_visible_month=dh.last_date(),
-                    display_format="DD.MM.YYYY",
-                    style={'display': "inline-block"}
-                ),
-                dcc.Checklist(
-                    id='detail-toggle',
-                    options=[
-                        {'label': 'Viertelstunden', 'value': 'quarter'},
-                        {'label': 'Zählerwerte', 'value': 'meter'},
-                        {'label': 'Standardlastprofil', 'value': 'dlp'},
-                    ],
-                    value=[],
-                    labelStyle={'display': 'inline-block'},
-                    style={'display': 'inline-block'}
-                ),
-                dcc.Graph(id='graph-detail'),
+                html.Div(className="row", children=[
+                    dcc.DatePickerSingle(
+                        className="two columns u-full-width",
+                        id='date-picker-single',
+                        min_date_allowed=dh.first_date(),
+                        max_date_allowed=dh.last_date(),
+                        initial_visible_month=dh.last_date(),
+                        display_format="DD.MM.YYYY",
+                    ),
+                    dcc.Dropdown(
+                        className="four columns u-full-width",
+                        id='detail-toggle',
+                        options=[
+                            {'label': 'Viertelstunden', 'value': 'quarter'},
+                            {'label': 'Zählerwerte', 'value': 'meter'},
+                            {'label': 'Standardlastprofil', 'value': 'dlp'},
+                        ],
+                        value=[],
+                        placeholder="Optionen...",
+                        multi=True
+                    )
+                ]),
+                dcc.Graph(id='graph-detail')
             ]),
             html.Div(className="row", children=[
                 dash_table.DataTable(
