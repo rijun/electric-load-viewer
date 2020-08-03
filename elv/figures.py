@@ -106,7 +106,7 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
         if default_load_profile:
             dlp = DefaultLoadProfile()
             dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage(), shift=True)
-            dlp_data = dlp_data.resample(rule).sum()
+            dlp_data = dlp_data.mul(1E-3).resample(rule).sum()  # Scale to kWh before resampling
 
             fig.add_trace(
                 go.Bar(x=dlp_data.index.time, y=dlp_data.values, name="Standardlastprofil"),

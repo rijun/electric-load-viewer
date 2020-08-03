@@ -41,14 +41,13 @@ class DefaultLoadProfile:
     def _static_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
         """Calculate the static profile values for the provided day."""
         ret_values = self._static_lookup.loc[self._season_type(date), self._day_type(date)]
-        ret_values = ret_values.mul(1E-3).mul(energy_usage / 1000)  # Scale values kW and to account for normalization
+        ret_values = ret_values.mul(energy_usage / 1000)    # Account for normalization
         return ret_values
 
     def _dynamic_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
         """Calculate the dynamic profile values for the provided day."""
         return self._static_profile_values(date, energy_usage) \
-            .mul(self._dynamic_lookup.loc[date.timetuple().tm_yday]['value']) \
-            .round(1)
+            .mul(self._dynamic_lookup.loc[date.timetuple().tm_yday]['value']).round(1)
 
     @classmethod
     def _day_type(cls, d):
