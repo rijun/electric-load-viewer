@@ -39,7 +39,7 @@
 .container {
   position: relative;
   width: 100%;
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
   box-sizing: border-box; }
@@ -398,8 +398,8 @@ ol {
 /* Misc
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 hr {
-  margin-top: 3rem;
-  margin-bottom: 3.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2.5rem;
   border-width: 0;
   border-top: 1px solid #E1E1E1; }
 
@@ -445,3 +445,10 @@ there.
 /* Custom App CSS
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
+.user-display {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  height: 38px;
+}

@@ -7,6 +7,8 @@ from elv import figures, dh
 layout = html.Div(children=[
     # html.Div(className="row", children=["Electric Load Viewer"]),
     html.Div(className="container", children=[
+        html.H3("Digitale Lastgangsanzeige"),
+        html.Hr(),
         html.Form(className="header-bar", children=[
             html.Div(className="row", children=[
                 dcc.Dropdown(
@@ -17,13 +19,14 @@ layout = html.Div(children=[
                     ],
                     value='NYC'
                 ),
-                html.P("Max Mustermann, 44149 Dortmund", className="four columns"),
-                html.Button('Auswählen', id='submit-val', className="four columns"),
+                html.Div("Max Mustermann, 44149 Dortmund", className="four columns user-display"),
+                html.Button('Auswählen', id='submit-val', className="four columns button-primary"),
             ]),
         ]),
+        html.Hr(),
         html.Div(className="row", children=[
             html.Div(className="row", children=[
-                html.H3("Übersicht"),
+                html.H5("Übersicht"),
                 html.Div([
                     dcc.Dropdown(
                         id='type-dropdown',
