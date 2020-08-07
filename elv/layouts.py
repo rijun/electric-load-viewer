@@ -6,9 +6,22 @@ from elv import figures, dh
 
 layout = html.Div(children=[
     # html.Div(className="row", children=["Electric Load Viewer"]),
-    html.Div(className="row", children=[
-        html.Div(className="one columns", children=[html.Div()]),
-        html.Div(className="ten columns", children=[
+    html.Div(className="container", children=[
+        html.Form(className="header-bar", children=[
+            html.Div(className="row", children=[
+                dcc.Dropdown(
+                    id='meter-selector',
+                    className="four columns",
+                    options=[
+                        {'label': '1ESY000222449', 'value': '1ESY000222449'}
+                    ],
+                    value='NYC'
+                ),
+                html.P("Max Mustermann, 44149 Dortmund", className="four columns"),
+                html.Button('Auswählen', id='submit-val', className="four columns"),
+            ]),
+        ]),
+        html.Div(className="row", children=[
             html.Div(className="row", children=[
                 html.H3("Übersicht"),
                 html.Div([
