@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output
 
 from elv import callbacks
 from elv.app import app
-from elv.layouts import layout
+from elv.layouts import main_layout
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -16,7 +16,7 @@ app.layout = html.Div([
               [Input('url', 'pathname')])
 def display_page(pathname):
     if pathname == '/':
-        return layout
+        return main_layout
     else:
         return '404'
 

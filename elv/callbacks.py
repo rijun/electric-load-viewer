@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 from dash.dependencies import Input, Output
 
-from elv import figures, dh
+from elv import figures, layouts, dh
 from elv.app import app
 
 
@@ -54,6 +54,15 @@ def date_from_str(date_str: str) -> Optional[datetime]:
         return None
 
     return datetime.strptime(date_str, date_fmt)
+
+
+@app.callback(Output('main-content', 'children'),
+              [Input('mode-tabs', 'value')])
+def render_content(tab):
+    if tab == 'tab-overview':
+        return layouts.overview_layout
+    elif tab == 'tab-day':
+        return layouts.day_layout
 
 
 @app.callback(Output('graph-overview', 'figure'),

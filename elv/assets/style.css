@@ -452,3 +452,17 @@ there.
   align-items: center;
   height: 38px;
 }
+
+.custom-tabs-container {
+  height: 38px;
+}
+
+.custom-tabs {
+  margin-bottom: 2rem;
+}
+
+.custom-tab {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
