@@ -2,6 +2,7 @@ import re
 from datetime import datetime
 from typing import Optional, Tuple
 
+import dash
 from dash.dependencies import Input, Output
 
 from elv import figures, layouts, dh
@@ -57,12 +58,20 @@ def date_from_str(date_str: str) -> Optional[datetime]:
 
 
 @app.callback(Output('main-content', 'children'),
-              [Input('mode-tabs', 'value')])
-def render_content(tab):
-    if tab == 'tab-overview':
+              [Input('tab-overview', 'n_clicks'),
+               Input('tab-day', 'n_clicks')])
+def render_content(overview, day):
+    ctx = dash.callback_context
+
+    button_id = ""
+    if ctx.triggered:
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    if button_id == 'tab-overview':
         return layouts.overview_layout
-    elif tab == 'tab-day':
+    elif button_id == 'tab-day':
         return layouts.day_layout
+    else:
+        return None
 
 
 @app.callback(Output('graph-overview', 'figure'),

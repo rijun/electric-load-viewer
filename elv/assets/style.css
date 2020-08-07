@@ -453,16 +453,26 @@ there.
   height: 38px;
 }
 
-.custom-tabs-container {
-  height: 38px;
-}
-
-.custom-tabs {
+.button-tabs-container {
   margin-bottom: 2rem;
 }
 
-.custom-tab {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
+.button-tab {
+  width: 50%;
+}
+
+.button-tab:hover {
+
+}
+
+.button-tab-left {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+.button-tab-right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
 }

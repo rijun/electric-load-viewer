@@ -24,16 +24,13 @@ main_layout = html.Div(children=[
             ]),
         ]),
         html.Hr(),
-        dcc.Tabs(
-            id='mode-tabs',
-            value='tab-overview',
-            parent_className='custom-tabs',
-            className='custom-tabs-container',
-            children=[
-                dcc.Tab(label="Übersicht", value='tab-overview', className='custom-tab'),
-                dcc.Tab(label="Tagesansicht", value='tab-day', className='custom-tab'),
-            ]),
-        html.Div(id='main-content')
+        html.Div(className="button-tabs-container", children=[
+            html.Button('Übersicht', id='tab-overview', className="button-tab button-tab-left"),
+            html.Button('Tagesansicht', id='tab-day', className="button-tab button-tab-right"),
+        ]),
+        html.Div(id='main-content', children=[
+            html.Marquee(html.H1("This space for rent!"))
+        ])
     ])
 ])
 
@@ -132,5 +129,5 @@ day_layout = html.Div(children=[
             ],
             page_size=24
         )
-    ]),
+    ])
 ])
