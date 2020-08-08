@@ -24,104 +24,101 @@ main_layout = html.Div(children=[
             ]),
         ]),
         html.Hr(),
-        html.Div(className="button-container", children=[
-            html.Button('Übersicht', id='tab-overview', className="button-tab button-tab-left"),
-            html.Button('Tagesansicht', id='tab-day', className="button-tab button-tab-right"),
+        html.H4("Übersicht", className="section-header"),
+        html.Div(className="plot-title", id='overview-plot-title'),
+        dcc.Graph(
+            id='graph-overview',
+            figure=figures.create_overview_figure(),
+            config={'displaylogo': False}
+        ),
+        html.Table(className="u-full-width", children=[
+            html.Thead([
+                html.Th("Minimum"),
+                html.Th("Maximum"),
+                html.Th("Durchschnitt"),
+                html.Th("Summe")
+            ]),
+            html.Tbody([
+                html.Td([html.Span(id='min-span'), " kW"]),
+                html.Td([html.Span(id='max-span'), " kW"]),
+                html.Td([html.Span(id='mean-span'), " kW"]),
+                html.Td([html.Span(id='sum-span'), " kW"]),
+            ])
         ]),
-        html.Div(id='main-content')
-    ])
-])
-
-overview_layout = html.Div(children=[
-    html.Div(className="plot-title", id='overview-plot-title'),
-    dcc.Graph(
-        id='graph-overview',
-        figure=figures.create_overview_figure(),
-        config={'displaylogo': False}
-    ),
-    html.Table(className="u-full-width", children=[
-        html.Thead([
-            html.Th("Minimum"),
-            html.Th("Maximum"),
-            html.Th("Durchschnitt"),
-            html.Th("Summe")
+        html.Div(className="row button-container", children=[
+            dcc.Dropdown(
+                id='type-dropdown',
+                className="four columns",
+                options=[
+                    {'label': 'Balken', 'value': 'bar'},
+                    {'label': 'Linie', 'value': 'line'},
+                ],
+                value='bar',
+                clearable=False,
+                searchable=False
+            ),
+            dcc.Dropdown(
+                id='style-dropdown',
+                className="four columns",
+                options=[
+                    {'label': 'Füllen', 'value': 'fill'},
+                    {'label': 'Linie+Punkte', 'value': 'markers'},
+                ],
+                placeholder="Stil...",
+                value=[],
+                multi=True
+            )
         ]),
-        html.Tbody([
-            html.Td([html.Span(id='min-span'), " kW"]),
-            html.Td([html.Span(id='max-span'), " kW"]),
-            html.Td([html.Span(id='mean-span'), " kW"]),
-            html.Td([html.Span(id='sum-span'), " kW"]),
+        html.Hr(),
+        html.H4("Tagesansicht", className="section-header"),
+        html.Div(style={'margin': '1rem 0', 'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center'}, children=[
+            html.Div(children=[
+                dcc.DatePickerSingle(
+                    id='date-picker-single',
+                    className="div-vert-align",
+                    min_date_allowed=dh.first_date(),
+                    max_date_allowed=dh.last_date(),
+                    initial_visible_month=dh.last_date(),
+                    display_format="DD.MM.YYYY",
+                    style={'height': '36px'}
+                )
+            ]),
+            html.Div(children=[
+                dcc.Checklist(
+                    id='detail-toggle',
+                    style={
+                        'font-weight': '400 !override'
+                    },
+                    options=[
+                        {'label': 'Viertelstunden', 'value': 'quarter'},
+                        {'label': 'Zählerwerte', 'value': 'meter'},
+                        {'label': 'Standardlastprofil', 'value': 'dlp'},
+                    ],
+                    value=[]
+                )
+            ])
+        ]),
+        html.Span(className="plot-title u-cf", children=["Test"]),
+        dcc.Graph(id='graph-detail'),
+        html.Div(className="row", children=[
+            dash_table.DataTable(
+                id='table',
+                columns=[
+                    {
+                        'name': "Zeitpunkt",
+                        'id': 'date_time'
+                    },
+                    {
+                        'name': "Zählerstand",
+                        'id': 'obis_180'
+                    },
+                    {
+                        'name': "Zählervorschub",
+                        'id': 'diff'
+                    },
+                ],
+                page_size=24
+            )
         ])
-    ]),
-    html.Div(className="row button-container", children=[
-        dcc.Dropdown(
-            id='type-dropdown',
-            className="four columns",
-            options=[
-                {'label': 'Balken', 'value': 'bar'},
-                {'label': 'Linie', 'value': 'line'},
-            ],
-            value='bar',
-            clearable=False,
-            searchable=False
-        ),
-        dcc.Dropdown(
-            id='style-dropdown',
-            className="four columns",
-            options=[
-                {'label': 'Füllen', 'value': 'fill'},
-                {'label': 'Linie+Punkte', 'value': 'markers'},
-            ],
-            placeholder="Stil...",
-            value=[],
-            multi=True
-        )
-    ])
-])
-
-day_layout = html.Div(children=[
-    html.H5(children="Detailansicht"),
-    html.Div(className="row", children=[
-        dcc.DatePickerSingle(
-            className="two columns u-full-width",
-            id='date-picker-single',
-            min_date_allowed=dh.first_date(),
-            max_date_allowed=dh.last_date(),
-            initial_visible_month=dh.last_date(),
-            display_format="DD.MM.YYYY",
-        ),
-        dcc.Dropdown(
-            className="four columns u-full-width",
-            id='detail-toggle',
-            options=[
-                {'label': 'Viertelstunden', 'value': 'quarter'},
-                {'label': 'Zählerwerte', 'value': 'meter'},
-                {'label': 'Standardlastprofil', 'value': 'dlp'},
-            ],
-            value=[],
-            placeholder="Optionen...",
-            multi=True
-        )
-    ]),
-    dcc.Graph(id='graph-detail'),
-    html.Div(className="row", children=[
-        dash_table.DataTable(
-            id='table',
-            columns=[
-                {
-                    'name': "Zeitpunkt",
-                    'id': 'date_time'
-                },
-                {
-                    'name': "Zählerstand",
-                    'id': 'obis_180'
-                },
-                {
-                    'name': "Zählervorschub",
-                    'id': 'diff'
-                },
-            ],
-            page_size=24
-        )
     ])
 ])

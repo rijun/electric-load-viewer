@@ -40,7 +40,7 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
             ),
             type="date"
         ),
-        margin=dict(t=0, b=50, l=0, r=0),
+        margin=dict(t=0, b=38, l=0, r=0),
         hovermode='x',
         modebar={'orientation': 'v'}
     )
@@ -93,6 +93,13 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
                 go.Bar(x=dlp_data.index.time, y=dlp_data.values, name="Standardlastprofil"),
                 secondary_y=False,
             )
+
+    fig.update_layout(
+        margin=dict(t=0, b=38, l=0, r=0),
+        hovermode='x',
+        modebar={'orientation': 'v'},
+        legend={'orientation': 'h'}
+    )
 
     return fig
 

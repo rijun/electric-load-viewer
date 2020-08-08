@@ -58,23 +58,6 @@ def date_from_str(date_str: str) -> Optional[datetime]:
     return datetime.strptime(date_str, date_fmt)
 
 
-@app.callback(Output('main-content', 'children'),
-              [Input('tab-overview', 'n_clicks'),
-               Input('tab-day', 'n_clicks')])
-def render_content(overview, day):
-    ctx = dash.callback_context
-
-    button_id = ""
-    if ctx.triggered:
-        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    if button_id == 'tab-overview':
-        return layouts.overview_layout
-    elif button_id == 'tab-day':
-        return layouts.day_layout
-    else:
-        return layouts.overview_layout
-
-
 @app.callback(Output('graph-overview', 'figure'),
               [Input('type-dropdown', 'value'),
                Input('style-dropdown', 'value')])

@@ -453,28 +453,20 @@ there.
   height: 38px;
 }
 
-.button-container {
-  margin-bottom: 2rem;
+.section-header {
+  margin-bottom: 0;
 }
 
-.button-tab {
-  width: 50%;
+.SingleDatePickerInput {
+  border: 0;
 }
 
-.button-tab:hover {
-
+.SingleDatePickerInput__withBorder{
+  border:none;
 }
 
-.button-tab-left {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: none;
-}
-
-.button-tab-right {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-left: none;
+.DateInput.DateInput_1{
+  width: 100%;
 }
 
 .plot-title {
