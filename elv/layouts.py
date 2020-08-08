@@ -6,7 +6,7 @@ from elv import figures, dh
 
 main_layout = html.Div(children=[
     # html.Div(className="row", children=["Electric Load Viewer"]),
-    html.Div(className="container", children=[
+    html.Div(className="container", style={'padding-top': '2rem'}, children=[
         html.H3("Digitale Lastgangsanzeige"),
         html.Hr(),
         html.Form(className="header-bar", children=[
@@ -33,6 +33,26 @@ main_layout = html.Div(children=[
 ])
 
 overview_layout = html.Div(children=[
+    html.Div(className="plot-title", id='overview-plot-title'),
+    dcc.Graph(
+        id='graph-overview',
+        figure=figures.create_overview_figure(),
+        config={'displaylogo': False}
+    ),
+    html.Table(className="u-full-width", children=[
+        html.Thead([
+            html.Th("Minimum"),
+            html.Th("Maximum"),
+            html.Th("Durchschnitt"),
+            html.Th("Summe")
+        ]),
+        html.Tbody([
+            html.Td([html.Span(id='min-span'), " kW"]),
+            html.Td([html.Span(id='max-span'), " kW"]),
+            html.Td([html.Span(id='mean-span'), " kW"]),
+            html.Td([html.Span(id='sum-span'), " kW"]),
+        ])
+    ]),
     html.Div(className="row button-container", children=[
         dcc.Dropdown(
             id='type-dropdown',
@@ -56,28 +76,6 @@ overview_layout = html.Div(children=[
             value=[],
             multi=True
         )
-    ]),
-    html.Div(className="plot-title", id='overview-plot-title'),
-    dcc.Graph(
-        id='graph-overview',
-        figure=figures.create_overview_figure(),
-        config={
-            'displaylogo': False
-        }
-    ),
-    html.Div(className="row", children=[
-        html.Div(className="two columns", children=[
-            html.P(children=[html.Span("Min.: "), html.Span("", id="min-span"), html.Span(" kWh")])
-        ]),
-        html.Div(className="two columns", children=[
-            html.P(children=[html.Span("Max.: "), html.Span("", id="max-span"), html.Span(" kWh")])
-        ]),
-        html.Div(className="two columns", children=[
-            html.P(children=[html.Span("Durchschn.: "), html.Span("", id="mean-span"), html.Span(" kWh")])
-        ]),
-        html.Div(className="two columns", children=[
-            html.P(children=[html.Span("Summe: "), html.Span("", id="sum-span"), html.Span(" kWh")])
-        ]),
     ])
 ])
 
