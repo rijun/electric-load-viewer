@@ -10,7 +10,6 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
     df = dh.overview()
-    df = df.loc[df['diff'] < 30]
 
     # Set x-axis title
     fig.update_xaxes(title_text="Datum")
@@ -26,7 +25,7 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
     # Add traces
     if kind == 'line':
         fig.add_trace(
-            go.Scatter(x=x_values, y=df['diff'], name="Lastgang", line={'shape': 'spline'}, fill=plot_fill,
+            go.Scatter(x=x_values, y=df['diff'], name="Lastgang", line={'shape': 'vhv'}, fill=plot_fill,
                        mode=plot_mode)
         )
     else:

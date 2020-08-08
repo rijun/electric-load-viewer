@@ -28,9 +28,7 @@ main_layout = html.Div(children=[
             html.Button('Übersicht', id='tab-overview', className="button-tab button-tab-left"),
             html.Button('Tagesansicht', id='tab-day', className="button-tab button-tab-right"),
         ]),
-        html.Div(id='main-content', children=[
-            html.Marquee(html.H1("This space for rent!"))
-        ])
+        html.Div(id='main-content')
     ])
 ])
 
@@ -38,7 +36,7 @@ overview_layout = html.Div(children=[
     html.Div(className="row button-container", children=[
         dcc.Dropdown(
             id='type-dropdown',
-            className="two columns",
+            className="four columns",
             options=[
                 {'label': 'Balken', 'value': 'bar'},
                 {'label': 'Linie', 'value': 'line'},
@@ -49,7 +47,7 @@ overview_layout = html.Div(children=[
         ),
         dcc.Dropdown(
             id='style-dropdown',
-            className="two columns",
+            className="four columns",
             options=[
                 {'label': 'Füllen', 'value': 'fill'},
                 {'label': 'Linie+Punkte', 'value': 'markers'},
@@ -59,6 +57,7 @@ overview_layout = html.Div(children=[
             multi=True
         )
     ]),
+    html.Div(className="plot-title", id='overview-plot-title'),
     dcc.Graph(
         id='graph-overview',
         figure=figures.create_overview_figure(),
@@ -67,14 +66,6 @@ overview_layout = html.Div(children=[
         }
     ),
     html.Div(className="row", children=[
-        html.Div(className="three columns", children=[
-            html.P(children=[
-                html.Span("Zeitraum: "),
-                html.Span("", id="start-span"),
-                html.Span(" → "),
-                html.Span("", id="end-span")
-            ])
-        ]),
         html.Div(className="two columns", children=[
             html.P(children=[html.Span("Min.: "), html.Span("", id="min-span"), html.Span(" kWh")])
         ]),

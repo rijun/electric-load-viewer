@@ -2,8 +2,9 @@ import re
 from datetime import datetime
 from typing import Optional, Tuple
 
+import arrow
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from elv import figures, layouts, dh
 from elv.app import app
@@ -71,7 +72,7 @@ def render_content(overview, day):
     elif button_id == 'tab-day':
         return layouts.day_layout
     else:
-        return None
+        return layouts.overview_layout
 
 
 @app.callback(Output('graph-overview', 'figure'),
@@ -83,22 +84,15 @@ def change_overview_figure(plot_type, style):
     return figures.create_overview_figure(kind=plot_type, fill=fill, markers=markers)
 
 
-@app.callback(Output('start-span', 'children'),
+@app.callback(Output('overview-plot-title', 'children'),
               [Input('graph-overview', 'relayoutData')])
-def update_start(relayout_data):
-    """Update start date display."""
-    start_date, _ = date_from_range_slider(relayout_data)
+def update_title(relayout_data):
+    """Update overview plot title."""
+    start_date, end_date = date_from_range_slider(relayout_data)
     start_date = dh.first_date() if start_date is None else start_date
-    return start_date.strftime("%d.%m.%Y")
-
-
-@app.callback(Output('end-span', 'children'),
-              [Input('graph-overview', 'relayoutData')])
-def update_start(relayout_data):
-    """Update end date display."""
-    _, end_date = date_from_range_slider(relayout_data)
     end_date = dh.last_date() if end_date is None else end_date
-    return end_date.strftime("%d.%m.%Y")
+    return f"{arrow.get(start_date).format('D. MMMM YYYY', locale='de_DE')} -- " \
+           f"{arrow.get(end_date).format('D. MMMM YYYY', locale='de_DE')}"
 
 
 @app.callback(Output('min-span', 'children'),
