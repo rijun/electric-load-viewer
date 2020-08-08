@@ -24,7 +24,7 @@ main_layout = html.Div(children=[
             ]),
         ]),
         html.Hr(),
-        html.Div(className="button-tabs-container", children=[
+        html.Div(className="button-container", children=[
             html.Button('Übersicht', id='tab-overview', className="button-tab button-tab-left"),
             html.Button('Tagesansicht', id='tab-day', className="button-tab button-tab-right"),
         ]),
@@ -35,8 +35,7 @@ main_layout = html.Div(children=[
 ])
 
 overview_layout = html.Div(children=[
-    html.H5("Übersicht"),
-    html.Div([
+    html.Div(className="row button-container", children=[
         dcc.Dropdown(
             id='type-dropdown',
             className="two columns",
@@ -60,7 +59,13 @@ overview_layout = html.Div(children=[
             multi=True
         )
     ]),
-    dcc.Graph(id='graph-overview', figure=figures.create_overview_figure()),
+    dcc.Graph(
+        id='graph-overview',
+        figure=figures.create_overview_figure(),
+        config={
+            'displaylogo': False
+        }
+    ),
     html.Div(className="row", children=[
         html.Div(className="three columns", children=[
             html.P(children=[
