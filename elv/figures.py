@@ -1,3 +1,4 @@
+import arrow
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -33,6 +34,13 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
             go.Bar(x=x_values, y=df['diff'], name="Lastgang")
         )
 
+    fig.layout.title = {
+        'text': f"{arrow.get(df.index.min()).format('D. MMMM YYYY', locale='de_DE')} -- "
+                f"{arrow.get(df.index.max()).format('D. MMMM YYYY', locale='de_DE')}",
+        'x': 0.5,
+        'xanchor': 'center'
+    }
+
     fig.update_layout(
         xaxis=dict(
             rangeslider=dict(
@@ -40,7 +48,7 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
             ),
             type="date"
         ),
-        margin=dict(t=0, b=38, l=0, r=0),
+        margin=dict(t=25, b=38, l=0, r=0),
         hovermode='x',
         modebar={'orientation': 'v'}
     )
@@ -69,7 +77,7 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
 
         day = day.resample(rule).agg({'obis_180': 'first', 'diff': 'sum'})
 
-        x_values = day.index.time
+        x_values = day.index
 
         # Add traces
         fig.add_trace(
@@ -94,12 +102,21 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
                 secondary_y=False,
             )
 
-    fig.update_layout(
-        margin=dict(t=0, b=38, l=0, r=0),
-        hovermode='x',
-        modebar={'orientation': 'v'},
-        legend={'orientation': 'h'}
-    )
+        fig.layout.title = {
+            'text': arrow.get(date).format('dddd, D. MMMM YYYY', locale='de_DE'),
+            'x': 0.5,
+            'xanchor': 'center'
+        }
+
+    fig.layout.legend = {
+        'x': 0.01,
+        'y': 0.99,
+        'xanchor': 'left',
+        'yanchor': 'top'
+    }
+    fig.layout.margin = {'t': 25, 'b': 0, 'l': 0, 'r': 75 if meter else 0}
+    fig.layout.hovermode = 'x'
+    fig.layout.modebar.orientation = 'v'
 
     return fig
 

@@ -67,17 +67,6 @@ def change_overview_figure(plot_type, style):
     return figures.create_overview_figure(kind=plot_type, fill=fill, markers=markers)
 
 
-@app.callback(Output('overview-plot-title', 'children'),
-              [Input('graph-overview', 'relayoutData')])
-def update_title(relayout_data):
-    """Update overview plot title."""
-    start_date, end_date = date_from_range_slider(relayout_data)
-    start_date = dh.first_date() if start_date is None else start_date
-    end_date = dh.last_date() if end_date is None else end_date
-    return f"{arrow.get(start_date).format('D. MMMM YYYY', locale='de_DE')} -- " \
-           f"{arrow.get(end_date).format('D. MMMM YYYY', locale='de_DE')}"
-
-
 @app.callback(Output('min-span', 'children'),
               [Input('graph-overview', 'relayoutData')])
 def update_min(relayout_data):

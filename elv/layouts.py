@@ -25,7 +25,6 @@ main_layout = html.Div(children=[
         ]),
         html.Hr(),
         html.H4("Übersicht", className="section-header"),
-        html.Div(className="plot-title", id='overview-plot-title'),
         dcc.Graph(
             id='graph-overview',
             figure=figures.create_overview_figure(),
@@ -86,20 +85,16 @@ main_layout = html.Div(children=[
             html.Div(children=[
                 dcc.Checklist(
                     id='detail-toggle',
-                    style={
-                        'font-weight': '400 !override'
-                    },
                     options=[
                         {'label': 'Viertelstunden', 'value': 'quarter'},
                         {'label': 'Zählerwerte', 'value': 'meter'},
                         {'label': 'Standardlastprofil', 'value': 'dlp'},
                     ],
-                    value=[]
+                    value=['meter', 'dlp']
                 )
             ])
         ]),
-        html.Span(className="plot-title u-cf", children=["Test"]),
-        dcc.Graph(id='graph-detail'),
+        dcc.Graph(id='graph-detail', config={'displaylogo': False}),
         html.Div(className="row", children=[
             dash_table.DataTable(
                 id='table',
