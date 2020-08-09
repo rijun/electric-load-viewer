@@ -87,7 +87,7 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
 
         if meter:
             fig.add_trace(
-                go.Scatter(x=x_values, y=day['obis_180'], name="Zählerstand"),
+                go.Scatter(x=x_values, y=day['obis_180'], name="Zählerstand", line={'color': '#EF553B'}),
                 secondary_y=True,
             )
             fig.update_yaxes(title_text="kW", secondary_y=True)
@@ -98,7 +98,7 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
             dlp_data = dlp_data.mul(1E-3).resample(rule).sum()  # Scale to kWh before resampling
 
             fig.add_trace(
-                go.Bar(x=dlp_data.index.time, y=dlp_data.values, name="Standardlastprofil"),
+                go.Bar(x=dlp_data.index, y=dlp_data.values, name="Standardlastprofil", marker={'color': '#00CC96'}),
                 secondary_y=False,
             )
 
@@ -117,6 +117,7 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
     fig.layout.margin = {'t': 25, 'b': 0, 'l': 0, 'r': 75 if meter else 0}
     fig.layout.hovermode = 'x'
     fig.layout.modebar.orientation = 'v'
+
 
     return fig
 

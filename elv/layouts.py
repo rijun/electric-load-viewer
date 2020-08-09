@@ -90,7 +90,7 @@ main_layout = html.Div(children=[
                         {'label': 'Zählerwerte', 'value': 'meter'},
                         {'label': 'Standardlastprofil', 'value': 'dlp'},
                     ],
-                    value=['meter', 'dlp']
+                    value=[]
                 )
             ])
         ]),
