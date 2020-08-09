@@ -27,11 +27,11 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
     if kind == 'line':
         fig.add_trace(
             go.Scatter(x=x_values, y=df['diff'], name="Lastgang", line={'shape': 'vhv'}, fill=plot_fill,
-                       mode=plot_mode)
+                       mode=plot_mode, hovertemplate="%{y} kWh / Tag")
         )
     else:
         fig.add_trace(
-            go.Bar(x=x_values, y=df['diff'], name="Lastgang")
+            go.Bar(x=x_values, y=df['diff'], name="Lastgang", hovertemplate="%{y} kWh / Tag")
         )
 
     fig.layout.title = {
@@ -50,7 +50,10 @@ def create_overview_figure(kind='bar', fill=False, markers=False):
         ),
         margin=dict(t=25, b=38, l=0, r=0),
         hovermode='x',
-        modebar={'orientation': 'v'}
+        modebar={'orientation': 'v'},
+        yaxis={
+            'tickformat': '.2f'
+        }
     )
 
     return fig
@@ -64,7 +67,7 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
     fig.update_xaxes(title_text="Zeitpunkt")
 
     # Set y-axes titles
-    fig.update_yaxes(title_text="kWh / Tag", secondary_y=False)
+    fig.update_yaxes(title_text=f"kWh / {'60 min' if not quarter else '15 min'}", secondary_y=False)
 
     # Filter incomplete request
     if date is not None:
@@ -81,16 +84,17 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
 
         # Add traces
         fig.add_trace(
-            go.Bar(x=x_values, y=day['diff'], name="Lastgang"),
+            go.Bar(x=x_values, y=day['diff'], name="Lastgang", hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}"),
             secondary_y=False,
         )
 
         if meter:
             fig.add_trace(
-                go.Scatter(x=x_values, y=day['obis_180'], name="Zählerstand", line={'color': '#EF553B'}),
-                secondary_y=True,
+                go.Scatter(x=x_values, y=day['obis_180'], name="Zählerstand", line={'color': '#EF553B'},
+                           hovertemplate="%{y} kWh"),
+                secondary_y=True
             )
-            fig.update_yaxes(title_text="kW", secondary_y=True)
+            fig.update_yaxes(title_text="kWh", secondary_y=True)
 
         if default_load_profile:
             dlp = DefaultLoadProfile()
@@ -98,8 +102,9 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
             dlp_data = dlp_data.mul(1E-3).resample(rule).sum()  # Scale to kWh before resampling
 
             fig.add_trace(
-                go.Bar(x=dlp_data.index, y=dlp_data.values, name="Standardlastprofil", marker={'color': '#00CC96'}),
-                secondary_y=False,
+                go.Bar(x=dlp_data.index, y=dlp_data.values, name="Standardlastprofil", marker={'color': '#00CC96'},
+                       hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}"),
+                secondary_y=False
             )
 
         fig.layout.title = {
@@ -108,16 +113,25 @@ def create_detail_figure(date: str, quarter: bool, meter: bool, default_load_pro
             'xanchor': 'center'
         }
 
-    fig.layout.legend = {
-        'x': 0.01,
-        'y': 0.99,
-        'xanchor': 'left',
-        'yanchor': 'top'
-    }
-    fig.layout.margin = {'t': 25, 'b': 0, 'l': 0, 'r': 75 if meter else 0}
-    fig.layout.hovermode = 'x'
-    fig.layout.modebar.orientation = 'v'
-
+    fig.update_layout(
+        legend={
+            'x': 0.01,
+            'y': 0.99,
+            'xanchor': 'left',
+            'yanchor': 'top'
+        },
+        margin={'t': 25, 'b': 0, 'l': 0, 'r': 75 if meter else 0},
+        hovermode='x',
+        modebar={'orientation': 'v'},
+        yaxis={
+            'tickformat': '.2f'
+        },
+        yaxis2={
+            'showexponent': 'none',
+            'exponentformat': 'none',
+            'tickformat': '.f'
+        }
+    )
 
     return fig
 

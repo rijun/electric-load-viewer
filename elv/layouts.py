@@ -95,6 +95,7 @@ main_layout = html.Div(children=[
             ])
         ]),
         dcc.Graph(id='graph-detail', config={'displaylogo': False}),
+        html.Br(),
         html.Div(className="row", children=[
             dash_table.DataTable(
                 id='table',
@@ -104,11 +105,11 @@ main_layout = html.Div(children=[
                         'id': 'date_time'
                     },
                     {
-                        'name': "Zählerstand",
+                        'name': "Zählerstand [kWh]",
                         'id': 'obis_180'
                     },
                     {
-                        'name': "Zählervorschub",
+                        'name': "Zählervorschub [kWh / h]",
                         'id': 'diff'
                     },
                 ],
