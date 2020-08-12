@@ -70,7 +70,8 @@ main_layout = html.Div(children=[
         ]),
         html.Hr(),
         html.H4("Tagesansicht", className="section-header"),
-        html.Div(style={'margin': '1rem 0', 'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center'}, children=[
+        html.Div(style={'margin': '1rem 0', 'display': 'flex', 'justify-content': 'space-between',
+                        'align-items': 'center'}, children=[
             html.Div(children=[
                 dcc.DatePickerSingle(
                     id='date-picker-single',
@@ -103,15 +104,16 @@ main_layout = html.Div(children=[
                     {
                         'name': "Zeitpunkt",
                         'id': 'date_time'
-                    },
-                    {
+                    }, {
                         'name': "Zählerstand [kWh]",
                         'id': 'obis_180'
-                    },
-                    {
+                    }, {
                         'name': "Zählervorschub [kWh / h]",
                         'id': 'diff'
-                    },
+                    }, {
+                        'name': "Standardlastprofil [kWh / h]",
+                        'id': 'dlp'
+                    }
                 ],
                 page_size=24,
                 style_cell_conditional=[

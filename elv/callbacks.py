@@ -126,3 +126,24 @@ def update_table(date, selector):
     """Update the detail table."""
     q = True if 'quarter' in selector else False
     return figures.create_table_data(date, quarter=q)
+
+
+@app.callback(Output('table', 'columns'),
+              [Input('detail-toggle', 'value')])
+def update_table(selector):
+    """Update the detail table."""
+    return [
+        {
+            'name': "Zeitpunkt",
+            'id': 'date_time'
+        }, {
+            'name': "Zählerstand [kWh]",
+            'id': 'obis_180'
+        }, {
+            'name': f"Zählervorschub {'[kWh / 15 min]' if 'quarter' in selector else '[kWh / h]'}",
+            'id': 'diff'
+        }, {
+            'name': f"Standardlastprofil {'[kWh / 15 min]' if 'quarter' in selector else '[kWh / h]'}",
+            'id': 'dlp'
+        }
+    ]

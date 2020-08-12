@@ -146,19 +146,24 @@ def create_table_data(date: str, quarter: bool) -> list:
     :return: List of dictionaries with the keys date_time, obis_180 and diff.
     """
     if date is not None:
-        day = dh.day(date)
+        day = dh.day(date).copy(deep=True)
 
         if quarter:
             rule = '15T'
         else:
             rule = '60T'
 
+        dlp = DefaultLoadProfile()
+        dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage(), shift=True)
+        day['dlp'] = dlp_data.mul(1E-3)   # Scale to kWh
+
         table_data = day.resample(rule)\
-            .agg({'date_time': 'first', 'obis_180': 'first', 'diff': 'sum'})\
+            .agg({'date_time': 'first', 'obis_180': 'first', 'diff': 'sum', 'dlp': 'sum'})\
             .to_dict('records')
         # Clean up data
         for data in table_data:
             data['date_time'] = data['date_time'].strftime("%H:%M")
             data['diff'] = round(data['diff'], 2)
+            data['dlp'] = round(data['dlp'], 2)
 
         return table_data
