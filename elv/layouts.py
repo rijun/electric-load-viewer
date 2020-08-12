@@ -30,7 +30,7 @@ main_layout = html.Div(children=[
             figure=figures.create_overview_figure(),
             config={'displaylogo': False}
         ),
-        html.Table(className="u-full-width", children=[
+        html.Table(className="u-full-width", style={'margin-bottom': '2.5rem'}, children=[
             html.Thead([
                 html.Th("Minimum"),
                 html.Th("Maximum"),
@@ -44,7 +44,7 @@ main_layout = html.Div(children=[
                 html.Td([html.Span(id='sum-span'), " kW"]),
             ])
         ]),
-        html.Div(className="row button-container", children=[
+        html.Div(className="row button-container", style={'display': 'none'}, children=[
             dcc.Dropdown(
                 id='type-dropdown',
                 className="four columns",
@@ -68,7 +68,6 @@ main_layout = html.Div(children=[
                 multi=True
             )
         ]),
-        html.Hr(),
         html.H4("Tagesansicht", className="section-header"),
         html.Div(style={'margin': '1rem 0', 'display': 'flex', 'justify-content': 'space-between',
                         'align-items': 'center'}, children=[
