@@ -58,6 +58,15 @@ def date_from_str(date_str: str) -> Optional[datetime]:
     return datetime.strptime(date_str, date_fmt)
 
 
+@app.callback(Output('user-info', 'children'),
+              [Input('meter-selector', 'value')])
+def update_user_info(meter_id):
+    if meter_id is '':
+        return ''
+    m = dh.meter_info(meter_id)
+    return f"{m[1]} {m[0]}, {m[2]} {m[3]}"
+
+
 @app.callback(Output('graph-overview', 'figure'),
               [Input('type-dropdown', 'value'),
                Input('style-dropdown', 'value')])

@@ -5,7 +5,6 @@ import dash_table
 from elv import figures, dh
 
 main_layout = html.Div(children=[
-    # html.Div(className="row", children=["Electric Load Viewer"]),
     html.Div(className="container", style={'padding-top': '2rem'}, children=[
         html.H3("Digitale Lastgangsanzeige"),
         html.Hr(),
@@ -14,12 +13,12 @@ main_layout = html.Div(children=[
                 dcc.Dropdown(
                     id='meter-selector',
                     className="four columns",
-                    options=[
-                        {'label': '1ESY000222449', 'value': '1ESY000222449'}
-                    ],
-                    value='NYC'
+                    options=[{'label': x, 'value': x} for x in dh.meters_in_database()],
+                    value='',
+                    placeholder='Zähler auswählen...',
+                    clearable=False
                 ),
-                html.Div("Max Mustermann, 44149 Dortmund", className="four columns user-display"),
+                html.Div(id='user-info', className="four columns user-display"),
                 html.Button('Auswählen', id='submit-val', className="four columns button-primary"),
             ]),
         ]),

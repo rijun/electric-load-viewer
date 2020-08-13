@@ -33,6 +33,21 @@ class DataHandler:
 
         self._overview_df = self._df.resample('D').agg({'obis_180': 'first', 'diff': 'sum'})
 
+    def meters_in_database(self) -> list:
+        """Return a list of all meter ids in the database."""
+        con = sqlite3.connect(self._db_path)
+        meters = [x[0] for x in con.execute("SELECT zaehler_id FROM zaehlpunkte;").fetchall()]
+        con.close()
+        return meters
+
+    def meter_info(self, meter_id: str) -> tuple:
+        """Query the meter information from the database."""
+        con = sqlite3.connect(self._db_path)
+        meter_info = con.execute("SELECT kunde_name, kunde_vorname, plz, ort FROM zaehlpunkte "
+                                 "WHERE zaehler_id = (?);", [meter_id]).fetchall()[0]
+        con.close()
+        return meter_info
+
     def day(self, date: str) -> pd.DataFrame:
         """
         Return a DataFrame containing all entries of one day.
