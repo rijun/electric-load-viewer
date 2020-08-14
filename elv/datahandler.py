@@ -5,6 +5,8 @@ from typing import List, Optional
 
 import pandas as pd
 
+from elv.app import cache
+
 
 class DataHandler:
     def __init__(self):
@@ -15,23 +17,26 @@ class DataHandler:
         if not self._db_path.exists():
             print("Database file not found! Exiting...")
             exit(-1)
+        self._cache_conn = sqlite3.connect(':memory:')
+        self._cache_conn.execute("CREATE TABLE cache (date_time TEXT, session_id TEXT, data BLOB)")
+
+    @cache.memoize()
+    def _get_dataframe(self, session_id: str, meter_id: str):
         con = sqlite3.connect(self._db_path)
-        self._df = pd.read_sql_query("SELECT datum_zeit, obis_180 FROM zaehlwerte "
-                                     "WHERE strftime('%M', datum_zeit) % 15 = 0;",
-                                     con, parse_dates='datum_zeit')
+        df = pd.read_sql_query("SELECT datum_zeit, obis_180 FROM zaehlwerte WHERE strftime('%M', datum_zeit) % 15 = 0 "
+                               "AND zaehler_id = (?);", con, params=[meter_id], parse_dates='datum_zeit')
         con.close()
         # Remove duplicate entries
-        self._df = self._df.set_index('datum_zeit')
-        self._df = self._df.loc[~self._df.index.duplicated(keep='first')]
+        df = df.set_index('datum_zeit')
+        df = df.loc[~df.index.duplicated(keep='first')]
         # Reindex to add missing dates
-        idx = pd.date_range(self._df.index.min(), self._df.index.max(), freq='T')
-        self._df = self._df.reindex(idx)
+        idx = pd.date_range(df.index.min(), df.index.max(), freq='T')
+        df = df.reindex(idx)
         # Interpolate if necessary and calculate meter diffs
-        self._df = self._df.interpolate()
-        self._df['diff'] = self._df['obis_180'].diff()
-        self._df['date_time'] = self._df.index  # Required for aggregation
-
-        self._overview_df = self._df.resample('D').agg({'obis_180': 'first', 'diff': 'sum'})
+        df = df.interpolate()
+        df['diff'] = df['obis_180'].diff()
+        df['date_time'] = df.index  # Required for aggregation
+        return df
 
     def meters_in_database(self) -> list:
         """Return a list of all meter ids in the database."""
@@ -48,81 +53,85 @@ class DataHandler:
         con.close()
         return meter_info
 
-    def day(self, date: str) -> pd.DataFrame:
-        """
-        Return a DataFrame containing all entries of one day.
+    def day(self, session_id: str, meter_id: str, date: str) -> pd.DataFrame:
+        """Return a DataFrame containing all entries of one day."""
+        return self._get_dataframe(session_id, meter_id)[date]
 
-        :param date: The requested date
-        """
-        return self._df[date]
-
-    def overview(self) -> pd.DataFrame:
+    def overview(self, session_id: str, meter_id: str) -> pd.DataFrame:
         """Return a DataFrame with datetime as index and obis_180 and diff as columns, aggregated with first() and
         sum() respectively."""
-        return self._overview_df
+        return self._get_dataframe(session_id, meter_id).resample('D').agg({'obis_180': 'first', 'diff': 'sum'})
 
-    def first_date(self) -> float:
+    def first_date(self, session_id: str, meter_id: str) -> float:
         """Return the first date in the DataFrame."""
-        return self._df.index.date.min()
+        return self._get_dataframe(session_id, meter_id).index.date.min()
 
-    def last_date(self) -> float:
+    def last_date(self, session_id: str, meter_id: str) -> float:
         """Return the last date in the DataFrame."""
-        return self._df.index.date.max()
+        return self._get_dataframe(session_id, meter_id).index.date.max()
 
-    def available_months(self) -> List[str]:
+    def available_months(self, session_id: str, meter_id: str) -> List[str]:
         """Return a list of formatted strings (YYYY-MM) with the months available in the database."""
-        return [i for i in pd.Series(self._df.index.year.astype(str) + '-' + self._df.index.month.astype(str)).unique()]
+        return [i for i in pd.Series(self._get_dataframe(session_id, meter_id).index.year.astype(str) + '-' + self._get_dataframe(session_id, meter_id).index.month.astype(str)).unique()]
 
-    def available_years(self) -> List[str]:
+    def available_years(self, session_id: str, meter_id: str) -> List[str]:
         """Return a list of formatted strings (YYYY) with the years available in the database."""
-        return [i for i in self._df.index.year.unique()]
+        return [i for i in self._get_dataframe(session_id, meter_id).index.year.unique()]
 
-    def min(self, start: Optional[str] = None, end: Optional[str] = None) -> float:
+    def min(self, session_id: str, meter_id: str, start: Optional[str] = None, end: Optional[str] = None) -> float:
         """
         Return the minimum diff value for a given date range. If no parameters are passed, the first and last dates in
         the internal DataFrame will be used.
 
+        :param meter_id:
+        :param session_id: The session id belonging to the request
         :param start: The first date of the range (YYYY-MM-DD)
         :param end: The last date of the range (YYYY-MM-DD)
         """
-        start = self.first_date() if start is None else start
-        end = self.last_date() if end is None else end
-        return round(float(self._overview_df[start:end]['diff'].min()), 2)
+        start = self.first_date(session_id, meter_id) if start is None else start
+        end = self.last_date(session_id, meter_id) if end is None else end
+        return round(float(self.overview(session_id, meter_id)[start:end]['diff'].min()), 2)
 
-    def max(self, start: Optional[str] = None, end: Optional[str] = None) -> float:
+    def max(self, session_id: str, meter_id: str, start: Optional[str] = None, end: Optional[str] = None) -> float:
         """
         Return the maximum diff value for a given date range.
 
+        :param meter_id:
+        :param session_id: The session id belonging to the request
         :param start: The first date of the range (YYYY-MM-DD)
         :param end: The last date of the range (YYYY-MM-DD)
         """
-        start = self.first_date() if start is None else start
-        end = self.last_date() if end is None else end
-        return round(float(self._overview_df[start:end]['diff'].max()), 2)
+        start = self.first_date(session_id, meter_id) if start is None else start
+        end = self.last_date(session_id, meter_id) if end is None else end
+        return round(float(self.overview(session_id, meter_id)[start:end]['diff'].max()), 2)
 
-    def mean(self, start: Optional[str] = None, end: Optional[str] = None) -> float:
+    def mean(self, session_id: str, meter_id: str, start: Optional[str] = None, end: Optional[str] = None) -> float:
         """
         Return the mean diff value for a given date range.
 
+        :param meter_id:
+        :param session_id: The session id belonging to the request
         :param start: The first date of the range (YYYY-MM-DD)
         :param end: The last date of the range (YYYY-MM-DD)
         """
-        start = self.first_date() if start is None else start
-        end = self.last_date() if end is None else end
-        return round(float(self._overview_df[start:end]['diff'].mean()), 2)
+        start = self.first_date(session_id, meter_id) if start is None else start
+        end = self.last_date(session_id, meter_id) if end is None else end
+        return round(float(self.overview(session_id, meter_id)[start:end]['diff'].mean()), 2)
 
-    def sum(self, start: Optional[str] = None, end: Optional[str] = None) -> float:
+    def sum(self, session_id: str, meter_id: str, start: Optional[str] = None, end: Optional[str] = None) -> float:
         """
         Return the sum of all diff values for a given date range.
 
+        :param meter_id:
+        :param session_id: The session id belonging to the request
         :param start: The first date of the range (YYYY-MM-DD)
         :param end: The last date of the range (YYYY-MM-DD)
         """
-        start = self.first_date() if start is None else start
-        end = self.last_date() if end is None else end
-        return round(float(self._overview_df[start:end]['diff'].sum()), 2)
+        start = self.first_date(session_id, meter_id) if start is None else start
+        end = self.last_date(session_id, meter_id) if end is None else end
+        return round(float(self.overview(session_id, meter_id)[start:end]['diff'].sum()), 2)
 
-    def yearly_energy_usage(self):
+    def yearly_energy_usage(self, session_id: str, meter_id: str):
         """
         Calculate the previous yearly energy usage.
 
@@ -130,9 +139,9 @@ class DataHandler:
         returned. Otherwise, the currently stored meter values are summed up and interpolated to the a duration of one
         year.
         """
-        if self._df.index.size < 365:  # Dataset smaller than one year
-            energy_used = self._df.sum(axis=1).div(4).sum()
-            energy_used = energy_used / self._df.index.size * 365  # Scale to one year
+        if self._get_dataframe(session_id, meter_id).index.size < 365:  # Dataset smaller than one year
+            energy_used = self._get_dataframe(session_id, meter_id).sum(axis=1).div(4).sum()
+            energy_used = energy_used / self._get_dataframe(session_id, meter_id).index.size * 365  # Scale to one year
         else:
-            energy_used = self._df.iloc[-366:-1].sum(axis=1).div(4).sum()  # Calculate sum of last 365 values
+            energy_used = self._get_dataframe(session_id, meter_id).iloc[-366:-1].sum(axis=1).div(4).sum()  # Calculate sum of last 365 values
         return round(energy_used / 1000, 2)  # Convert Wh to kWh

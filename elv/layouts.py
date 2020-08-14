@@ -8,7 +8,7 @@ main_layout = html.Div(children=[
     html.Div(className="container", style={'padding-top': '2rem'}, children=[
         html.H3("Digitale Lastgangsanzeige"),
         html.Hr(),
-        html.Form(className="header-bar", children=[
+        html.Div(className="header-bar", children=[
             html.Div(className="row", children=[
                 dcc.Dropdown(
                     id='meter-selector',
@@ -19,14 +19,13 @@ main_layout = html.Div(children=[
                     clearable=False
                 ),
                 html.Div(id='user-info', className="four columns user-display"),
-                html.Button('Auswählen', id='submit-val', className="four columns button-primary"),
+                html.Button('Auswählen', id='select-meter', className="four columns button-primary"),
             ]),
         ]),
         html.Hr(),
         html.H4("Übersicht", className="section-header"),
         dcc.Graph(
             id='graph-overview',
-            figure=figures.create_overview_figure(),
             config={'displaylogo': False}
         ),
         html.Table(className="u-full-width", style={'margin-bottom': '2.5rem'}, children=[
@@ -74,9 +73,9 @@ main_layout = html.Div(children=[
                 dcc.DatePickerSingle(
                     id='date-picker-single',
                     className="div-vert-align",
-                    min_date_allowed=dh.first_date(),
-                    max_date_allowed=dh.last_date(),
-                    initial_visible_month=dh.last_date(),
+                    # min_date_allowed=dh.first_date(),
+                    # max_date_allowed=dh.last_date(),
+                    # initial_visible_month=dh.last_date(),
                     display_format="DD.MM.YYYY",
                     style={'height': '36px'}
                 )

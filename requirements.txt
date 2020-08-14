@@ -3,3 +3,4 @@ pandas~=1.0.5
 plotly~=4.8.2
 holidays~=0.10.2
 numpy~=1.19.0
+arrow~=0.15.8

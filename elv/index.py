@@ -1,3 +1,5 @@
+import uuid
+
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
@@ -15,8 +17,12 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
+    session_id = str(uuid.uuid4())
     if pathname == '/':
-        return main_layout
+        return html.Div(children=[
+            html.Div(session_id, id='session-id', style={'display': 'none'}),
+            main_layout
+        ])
     else:
         return '404'
 
