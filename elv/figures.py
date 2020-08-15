@@ -37,8 +37,13 @@ def overview_figure(session, meter_id, kind='bar', fill=False, markers=False):
                        mode=plot_mode, hovertemplate="%{y} kWh / Tag")
         )
     else:
+        if df['interpolation'].any():
+            colors = df['interpolation'].map({False: '#636EFA', True: '#EF553B'})
+        else:
+            colors = '#00CC96'
+
         fig.add_trace(
-            go.Bar(x=x_values, y=df['diff'], name="Lastgang", hovertemplate="%{y} kWh / Tag")
+            go.Bar(x=x_values, y=df['diff'], name="Lastgang", hovertemplate="%{y} kWh / Tag", marker_color=colors)
         )
 
     fig.layout.title = {
@@ -97,7 +102,7 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
 
         if meter:
             fig.add_trace(
-                go.Scatter(x=x_values, y=day['obis_180'], name="Zählerstand", line={'color': '#EF553B'},
+                go.Scatter(x=x_values, y=day['obis_180'], name="Zählerstand", line={'color': '#00CC96'},
                            hovertemplate="%{y} kWh"),
                 secondary_y=True
             )
@@ -109,7 +114,7 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
             dlp_data = dlp_data.mul(1E-3).resample(rule).sum()  # Scale to kWh before resampling
 
             fig.add_trace(
-                go.Bar(x=dlp_data.index, y=dlp_data.values, name="Standardlastprofil", marker={'color': '#00CC96'},
+                go.Bar(x=dlp_data.index, y=dlp_data.values, name="Standardlastprofil", marker={'color': '#AB63FA'},
                        hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}"),
                 secondary_y=False
             )

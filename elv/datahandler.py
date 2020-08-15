@@ -3,6 +3,7 @@ import pathlib
 import sqlite3
 from typing import List, Optional
 
+import numpy as np
 import pandas as pd
 
 from elv.app import cache
@@ -30,11 +31,16 @@ class DataHandler:
         df = df.set_index('datum_zeit')
         df = df.loc[~df.index.duplicated(keep='first')]
         # Reindex to add missing dates
-        idx = pd.date_range(df.index.min(), df.index.max(), freq='T')
+        idx = pd.date_range(df.index.min(), df.index.max(), freq='15T')
         df = df.reindex(idx)
         # Interpolate if necessary and calculate meter diffs
+        df['interpolation'] = df['obis_180'].isna()
         df = df.interpolate()
         df['diff'] = df['obis_180'].diff()
+        # df['diff_inter'] = df['diff'].loc[df['interpolation'] == True]
+        # df.loc[(df['interpolation'] == True), 'diff'] = np.NaN
+        # df.loc[(df['interpolation'] == False), 'diff_inter'] = 0
+        # df.drop('interpolation', axis=1, inplace=True)
         df['date_time'] = df.index  # Required for aggregation
         return df
 
@@ -60,7 +66,9 @@ class DataHandler:
     def overview(self, session_id: str, meter_id: str) -> pd.DataFrame:
         """Return a DataFrame with datetime as index and obis_180 and diff as columns, aggregated with first() and
         sum() respectively."""
-        return self._get_dataframe(session_id, meter_id).resample('D').agg({'obis_180': 'first', 'diff': 'sum'})
+        return self._get_dataframe(session_id, meter_id).resample('D')\
+            .agg({'obis_180': 'first', 'diff': 'sum', 'interpolation': 'first'})
+            # .agg({'obis_180': 'first', 'diff': 'sum', 'interpolation': 'first'})
 
     def first_date(self, session_id: str, meter_id: str) -> float:
         """Return the first date in the DataFrame."""
@@ -72,7 +80,10 @@ class DataHandler:
 
     def available_months(self, session_id: str, meter_id: str) -> List[str]:
         """Return a list of formatted strings (YYYY-MM) with the months available in the database."""
-        return [i for i in pd.Series(self._get_dataframe(session_id, meter_id).index.year.astype(str) + '-' + self._get_dataframe(session_id, meter_id).index.month.astype(str)).unique()]
+        return [i for i in pd.Series(
+            self._get_dataframe(session_id, meter_id).index.year.astype(str) + '-' + self._get_dataframe(session_id,
+                                                                                                         meter_id).index.month.astype(
+                str)).unique()]
 
     def available_years(self, session_id: str, meter_id: str) -> List[str]:
         """Return a list of formatted strings (YYYY) with the years available in the database."""
@@ -143,5 +154,6 @@ class DataHandler:
             energy_used = self._get_dataframe(session_id, meter_id).sum(axis=1).div(4).sum()
             energy_used = energy_used / self._get_dataframe(session_id, meter_id).index.size * 365  # Scale to one year
         else:
-            energy_used = self._get_dataframe(session_id, meter_id).iloc[-366:-1].sum(axis=1).div(4).sum()  # Calculate sum of last 365 values
+            energy_used = self._get_dataframe(session_id, meter_id).iloc[-366:-1].sum(axis=1).div(
+                4).sum()  # Calculate sum of last 365 values
         return round(energy_used / 1000, 2)  # Convert Wh to kWh
