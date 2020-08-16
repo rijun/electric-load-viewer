@@ -73,9 +73,6 @@ main_layout = html.Div(children=[
                 dcc.DatePickerSingle(
                     id='date-picker-single',
                     className="div-vert-align",
-                    # min_date_allowed=dh.first_date(),
-                    # max_date_allowed=dh.last_date(),
-                    # initial_visible_month=dh.last_date(),
                     display_format="DD.MM.YYYY",
                     style={'height': '36px'}
                 )
@@ -130,7 +127,10 @@ main_layout = html.Div(children=[
                     'fontWeight': 'bold'
                 },
                 style_cell={
-                    'font-family': '"Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif'
+                    'font-family': '"Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'maxWidth': 0
                 }
             )
         ])
