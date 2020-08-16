@@ -66,9 +66,8 @@ class DataHandler:
     def overview(self, session_id: str, meter_id: str) -> pd.DataFrame:
         """Return a DataFrame with datetime as index and obis_180 and diff as columns, aggregated with first() and
         sum() respectively."""
-        return self._get_dataframe(session_id, meter_id).resample('D')\
+        return self._get_dataframe(session_id, meter_id).resample('D') \
             .agg({'obis_180': 'first', 'diff': 'sum', 'interpolation': 'first'})
-            # .agg({'obis_180': 'first', 'diff': 'sum', 'interpolation': 'first'})
 
     def first_date(self, session_id: str, meter_id: str) -> float:
         """Return the first date in the DataFrame."""
@@ -80,10 +79,8 @@ class DataHandler:
 
     def available_months(self, session_id: str, meter_id: str) -> List[str]:
         """Return a list of formatted strings (YYYY-MM) with the months available in the database."""
-        return [i for i in pd.Series(
-            self._get_dataframe(session_id, meter_id).index.year.astype(str) + '-' + self._get_dataframe(session_id,
-                                                                                                         meter_id).index.month.astype(
-                str)).unique()]
+        return [i for i in pd.Series(self._get_dataframe(session_id, meter_id).index.year.astype(str) + '-'
+                                     + self._get_dataframe(session_id, meter_id).index.month.astype(str)).unique()]
 
     def available_years(self, session_id: str, meter_id: str) -> List[str]:
         """Return a list of formatted strings (YYYY) with the years available in the database."""

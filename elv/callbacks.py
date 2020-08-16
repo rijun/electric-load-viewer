@@ -81,6 +81,18 @@ def change_overview_figure(n_clicks, plot_type, style, session, meter):
     return figures.overview_figure(session, meter, kind=plot_type, fill=fill, markers=markers)
 
 
+@app.callback([Output('date-picker-single', 'initial_visible_month'),
+               Output('date-picker-single', 'min_date_allowed'),
+               Output('date-picker-single', 'max_date_allowed')],
+              [Input('select-meter', 'n_clicks')],
+              [State('session-id', 'children'),
+               State('meter-selector', 'value')])
+def update_date_picker_limits(n_clicks, session, meter):
+    if n_clicks is None or meter == '':
+        return None, None, None
+    return dh.last_date(session, meter), dh.first_date(session, meter), dh.last_date(session, meter)
+
+
 @app.callback(Output('min-span', 'children'),
               [Input('graph-overview', 'relayoutData'),
                Input('select-meter', 'n_clicks')],
@@ -158,6 +170,8 @@ def display_click_data(click_data, session, meter):
                State('meter-selector', 'value')])
 def update_day(date, selector, session, meter):
     """Update the detail graph."""
+    if meter == '':
+        return figures.empty_graph()
     m = True if 'meter' in selector else False
     q = True if 'quarter' in selector else False
     d = True if 'dlp' in selector else False
@@ -171,6 +185,8 @@ def update_day(date, selector, session, meter):
                State('meter-selector', 'value')])
 def update_table(date, selector, session, meter):
     """Update the detail table."""
+    if meter == '':
+        return
     q = True if 'quarter' in selector else False
     return figures.table_data(session, meter, date, quarter=q)
 
