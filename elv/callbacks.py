@@ -74,7 +74,7 @@ def update_user_info(meter_id):
               [State('session-id', 'children'),
                State('meter-selector', 'value')])
 def change_overview_figure(n_clicks, plot_type, style, session, meter):
-    if n_clicks is None:
+    if n_clicks is None or meter == '':
         return figures.empty_graph()
     fill = True if 'fill' in style else False
     markers = True if 'markers' in style else False
@@ -89,7 +89,7 @@ def change_overview_figure(n_clicks, plot_type, style, session, meter):
 def update_min(relayout_data, n_clicks, session, meter):
     """Update minimum value display."""
     start_date, end_date = date_from_range_slider(relayout_data)
-    if n_clicks is None:
+    if n_clicks is None or meter == '':
         return '-'
     else:
         return dh.min(session, meter, start_date, end_date)
@@ -103,7 +103,7 @@ def update_min(relayout_data, n_clicks, session, meter):
 def update_max(relayout_data, n_clicks, session, meter):
     """Update maximum value display."""
     start_date, end_date = date_from_range_slider(relayout_data)
-    if n_clicks is None:
+    if n_clicks is None or meter == '':
         return '-'
     else:
         return dh.max(session, meter, start_date, end_date)
@@ -117,7 +117,7 @@ def update_max(relayout_data, n_clicks, session, meter):
 def update_mean(relayout_data, n_clicks, session, meter):
     """Update mean value display."""
     start_date, end_date = date_from_range_slider(relayout_data)
-    if n_clicks is None:
+    if n_clicks is None or meter == '':
         return '-'
     else:
         return dh.mean(session, meter, start_date, end_date)
@@ -131,7 +131,7 @@ def update_mean(relayout_data, n_clicks, session, meter):
 def update_sum(relayout_data, n_clicks, session, meter):
     """Update max value display."""
     start_date, end_date = date_from_range_slider(relayout_data)
-    if n_clicks is None:
+    if n_clicks is None or meter == '':
         return '-'
     else:
         return dh.sum(session, meter, start_date, end_date)
