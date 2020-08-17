@@ -23,48 +23,50 @@ main_layout = html.Div(children=[
             ]),
         ]),
         html.Hr(),
-        html.H4("Übersicht", className="section-header"),
-        dcc.Graph(
-            id='graph-overview',
-            config={'displaylogo': False}
-        ),
-        html.Table(className="u-full-width", style={'margin-bottom': '2.5rem'}, children=[
-            html.Thead([
-                html.Th("Minimum"),
-                html.Th("Maximum"),
-                html.Th("Durchschnitt"),
-                html.Th("Summe")
-            ]),
-            html.Tbody([
-                html.Td([html.Span(id='min-span'), " kW"]),
-                html.Td([html.Span(id='max-span'), " kW"]),
-                html.Td([html.Span(id='mean-span'), " kW"]),
-                html.Td([html.Span(id='sum-span'), " kW"]),
-            ])
-        ]),
-        html.Div(className="row button-container", style={'display': 'none'}, children=[
-            dcc.Dropdown(
-                id='type-dropdown',
-                className="four columns",
-                options=[
-                    {'label': 'Balken', 'value': 'bar'},
-                    {'label': 'Linie', 'value': 'line'},
-                ],
-                value='bar',
-                clearable=False,
-                searchable=False
+        dcc.Loading(type="graph", fullscreen=True, children=[
+            html.H4("Übersicht", className="section-header"),
+            dcc.Graph(
+                id='graph-overview',
+                config={'displaylogo': False}
             ),
-            dcc.Dropdown(
-                id='style-dropdown',
-                className="four columns",
-                options=[
-                    {'label': 'Füllen', 'value': 'fill'},
-                    {'label': 'Linie+Punkte', 'value': 'markers'},
-                ],
-                placeholder="Stil...",
-                value=[],
-                multi=True
-            )
+            html.Table(className="u-full-width", style={'margin-bottom': '2.5rem'}, children=[
+                html.Thead([
+                    html.Th("Minimum"),
+                    html.Th("Maximum"),
+                    html.Th("Durchschnitt"),
+                    html.Th("Summe")
+                ]),
+                html.Tbody([
+                    html.Td([html.Span(id='min-span'), " kW"]),
+                    html.Td([html.Span(id='max-span'), " kW"]),
+                    html.Td([html.Span(id='mean-span'), " kW"]),
+                    html.Td([html.Span(id='sum-span'), " kW"]),
+                ])
+            ]),
+            html.Div(className="row button-container", style={'display': 'none'}, children=[
+                dcc.Dropdown(
+                    id='type-dropdown',
+                    className="four columns",
+                    options=[
+                        {'label': 'Balken', 'value': 'bar'},
+                        {'label': 'Linie', 'value': 'line'},
+                    ],
+                    value='bar',
+                    clearable=False,
+                    searchable=False
+                ),
+                dcc.Dropdown(
+                    id='style-dropdown',
+                    className="four columns",
+                    options=[
+                        {'label': 'Füllen', 'value': 'fill'},
+                        {'label': 'Linie+Punkte', 'value': 'markers'},
+                    ],
+                    placeholder="Stil...",
+                    value=[],
+                    multi=True
+                )
+            ])
         ]),
         html.H4("Tagesansicht", className="section-header"),
         html.Div(style={'margin': '1rem 0', 'display': 'flex', 'justify-content': 'space-between',

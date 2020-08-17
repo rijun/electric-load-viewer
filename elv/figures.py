@@ -8,8 +8,12 @@ from default_load_profile import DefaultLoadProfile
 
 def empty_graph():
     fig = make_subplots()
-    fig.update_xaxes(title_text="Datum")
-    fig.update_yaxes(title_text="kWh / Tag")
+    fig.update_layout(
+        xaxis={'visible': False},
+        yaxis={'visible': False},
+        margin=dict(t=25, b=38, l=0, r=0),
+        modebar={'orientation': 'v'}
+    )
     return fig
 
 
