@@ -27,7 +27,7 @@ main_layout = html.Div(children=[
             html.H4("Übersicht", className="section-header"),
             dcc.Graph(
                 id='graph-overview',
-                config={'displaylogo': False}
+                config={'displaylogo': False, 'locale': 'de-DE'}
             ),
             html.Table(className="u-full-width", style={'margin-bottom': '2.5rem'}, children=[
                 html.Thead([
@@ -91,7 +91,7 @@ main_layout = html.Div(children=[
                 )
             ])
         ]),
-        dcc.Graph(id='graph-detail', config={'displaylogo': False}),
+        dcc.Graph(id='graph-detail', config={'displaylogo': False, 'locale': 'de-DE'}),
         html.Br(),
         html.Div(className="row", children=[
             dash_table.DataTable(
@@ -112,12 +112,8 @@ main_layout = html.Div(children=[
                     }
                 ],
                 page_size=24,
-                style_cell_conditional=[
-                    {
-                        'if': {'column_id': 'date_time'},
-                        'textAlign': 'left'
-                    }
-                ],
+                sort_action='native',
+                cell_selectable=False,
                 style_data_conditional=[
                     {
                         'if': {'row_index': 'odd'},
