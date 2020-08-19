@@ -67,6 +67,16 @@ def update_user_info(meter_id):
     return f"{m[1]} {m[0]}, {m[2]} {m[3]}"
 
 
+@app.callback(Output('content', 'style'),
+              [Input('select-meter', 'n_clicks')],
+              [State('meter-selector', 'value')])
+def change_overview_figure(n_clicks, meter):
+    if n_clicks is None:
+        return {'display': 'none'}
+    else:
+        return {'display': 'block'}
+
+
 @app.callback(Output('graph-overview', 'figure'),
               [Input('select-meter', 'n_clicks'),
                Input('type-dropdown', 'value'),
