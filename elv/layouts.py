@@ -76,6 +76,8 @@ main_layout = html.Div(children=[
                     id='date-picker-single',
                     className="div-vert-align",
                     display_format="DD.MM.YYYY",
+                    month_format="MM.YYYY",
+                    placeholder='Datum',
                     style={'height': '36px'}
                 )
             ]),
