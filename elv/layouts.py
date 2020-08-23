@@ -38,10 +38,10 @@ main_layout = html.Div(children=[
                         html.Th("Summe")
                     ]),
                     html.Tbody([
-                        html.Td([html.Span(id='min-span'), " kW"]),
-                        html.Td([html.Span(id='max-span'), " kW"]),
-                        html.Td([html.Span(id='mean-span'), " kW"]),
-                        html.Td([html.Span(id='sum-span'), " kW"]),
+                        html.Td([html.Span(id='min-span-overview'), " kW"]),
+                        html.Td([html.Span(id='max-span-overview'), " kW"]),
+                        html.Td([html.Span(id='mean-span-overview'), " kW"]),
+                        html.Td([html.Span(id='sum-span-overview'), " kW"]),
                     ])
                 ]),
                 html.Div(className="row button-container", style={'display': 'none'}, children=[
@@ -95,7 +95,20 @@ main_layout = html.Div(children=[
                 ])
             ]),
             dcc.Graph(id='graph-detail', config={'displaylogo': False, 'locale': 'de-DE'}),
-            html.Br(),
+            html.Table(className="u-full-width", style={'margin-bottom': '2.5rem'}, children=[
+                html.Thead([
+                    html.Th("Minimum"),
+                    html.Th("Maximum"),
+                    html.Th("Durchschnitt"),
+                    html.Th("Summe")
+                ]),
+                html.Tbody([
+                    html.Td([html.Span(id='min-span-detail'), " kW"]),
+                    html.Td([html.Span(id='max-span-detail'), " kW"]),
+                    html.Td([html.Span(id='mean-span-detail'), " kW"]),
+                    html.Td([html.Span(id='sum-span-detail'), " kW"]),
+                ])
+            ]),
             html.Div(className="row", children=[
                 dash_table.DataTable(
                     id='table',
