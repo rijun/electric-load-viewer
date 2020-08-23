@@ -12,7 +12,6 @@ from elv.app import cache
 class DataHandler:
     def __init__(self):
         """Class to retrieve and prepare the meter data for later use in the callbacks."""
-        # Get meter data
         p = pathlib.Path(os.path.realpath(__file__)).parent
         self._db_path = p / '..' / 'itp.db'
         if not self._db_path.exists():
@@ -22,7 +21,17 @@ class DataHandler:
         self._cache_conn.execute("CREATE TABLE cache (date_time TEXT, session_id TEXT, data BLOB)")
 
     @cache.memoize()
-    def _get_dataframe(self, session_id: str, meter_id: str):
+    def _get_dataframe(self, session_id: str, meter_id: str) -> pd.DataFrame:
+        """
+        Return a DataFrame with each quarter hour value (:15, :30, :45, :00) in the the database for the requested
+        meter. This method is cached, i.e. if the parameters stay the same between each function call the cached results
+        are used.
+
+        :type session_id: Generated session id to differentiate between users
+        :type meter_id: Meter number of the requested meter
+        :return: DataFrame with all values
+        """
+        # Get meter data
         con = sqlite3.connect(self._db_path)
         df = pd.read_sql_query("SELECT datum_zeit, obis_180 FROM zaehlwerte WHERE strftime('%M', datum_zeit) % 15 = 0 "
                                "AND zaehler_id = (?);", con, params=[meter_id], parse_dates='datum_zeit')
