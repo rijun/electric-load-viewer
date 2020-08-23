@@ -105,7 +105,8 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
 
         # Add traces
         fig.add_trace(
-            go.Bar(x=x_values, y=day['diff'], name="Lastgang", hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}", marker_color=colors),
+            go.Bar(x=x_values, y=day['diff'], name="Lastgang", marker_color=colors,
+                   hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}"),
             secondary_y=False,
         )
 
@@ -186,6 +187,7 @@ def table_data(session: str, meter_id: str, date: str, quarter: bool) -> list:
         # Clean up data
         for data in td:
             data['date_time'] = data['date_time'].strftime("%H:%M")
+            data['obis_180'] = round(data['obis_180'], 2)
             data['diff'] = round(data['diff'], 2)
             data['dlp'] = round(data['dlp'], 2)
 
