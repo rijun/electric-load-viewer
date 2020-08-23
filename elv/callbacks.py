@@ -71,7 +71,7 @@ def update_user_info(meter_id):
               [Input('select-meter', 'n_clicks')],
               [State('meter-selector', 'value')])
 def change_overview_figure(n_clicks, meter):
-    if n_clicks is None:
+    if n_clicks is None or meter == '':
         return {'display': 'none'}
     else:
         return {'display': 'block'}
