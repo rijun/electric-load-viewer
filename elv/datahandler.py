@@ -3,7 +3,6 @@ import pathlib
 import sqlite3
 from typing import List, Optional
 
-import numpy as np
 import pandas as pd
 
 from elv.app import cache
@@ -46,10 +45,6 @@ class DataHandler:
         df['interpolation'] = df['obis_180'].isna()
         df = df.interpolate()
         df['diff'] = df['obis_180'].diff()
-        # df['diff_inter'] = df['diff'].loc[df['interpolation'] == True]
-        # df.loc[(df['interpolation'] == True), 'diff'] = np.NaN
-        # df.loc[(df['interpolation'] == False), 'diff_inter'] = 0
-        # df.drop('interpolation', axis=1, inplace=True)
         df['date_time'] = df.index  # Required for aggregation
         return df
 

@@ -2,11 +2,9 @@ import re
 from datetime import datetime
 from typing import Optional, Tuple
 
-import arrow
-import dash
 from dash.dependencies import Input, Output, State
 
-from elv import figures, layouts, dh
+from elv import figures, dh
 from elv.app import app
 
 

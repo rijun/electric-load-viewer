@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 
-from elv import figures, dh
+from elv import dh
 
 main_layout = html.Div(children=[
     html.Div(className="container", style={'padding-top': '2rem'}, children=[
