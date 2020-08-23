@@ -44,7 +44,7 @@ def overview_figure(session, meter_id, kind='bar', fill=False, markers=False):
         if df['interpolation'].any():
             colors = df['interpolation'].map({False: '#636EFA', True: '#EF553B'})
         else:
-            colors = '#00CC96'
+            colors = '#636EFA'
 
         fig.add_trace(
             go.Bar(x=x_values, y=df['diff'], name="Lastgang", hovertemplate="%{y} kWh / Tag", marker_color=colors)
@@ -94,13 +94,18 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
         else:
             rule = '60T'
 
-        day = day.resample(rule).agg({'obis_180': 'first', 'diff': 'sum'})
+        day = day.resample(rule).agg({'obis_180': 'first', 'diff': 'sum', 'interpolation': 'first'})
 
         x_values = day.index
 
+        if day['interpolation'].any():
+            colors = day['interpolation'].map({False: '#636EFA', True: '#EF553B'})
+        else:
+            colors = '#636EFA'
+
         # Add traces
         fig.add_trace(
-            go.Bar(x=x_values, y=day['diff'], name="Lastgang", hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}"),
+            go.Bar(x=x_values, y=day['diff'], name="Lastgang", hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}", marker_color=colors),
             secondary_y=False,
         )
 
