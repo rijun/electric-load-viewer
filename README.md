@@ -7,8 +7,7 @@ Clone the repository and install the required python packages, for example via p
 the repo was cloned into the home directory and navigated into):
 
 ```shell script
-export PYTHONPATH=~/elv
-python3 elv/index.py
+python3 wsgi.py -d
 ```
 
 _Hint: When using a Raspberry Pi, the package `libatlas-base-dev` has to be installed additionally for NumPy to work._
