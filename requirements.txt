@@ -4,5 +4,4 @@ plotly~=4.9.0
 holidays~=0.10.3
 numpy~=1.19.1
 arrow~=0.15.8
-gunicorn~=20.0.4
 flask_caching~=1.9.0
