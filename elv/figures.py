@@ -9,10 +9,13 @@ from default_load_profile import DefaultLoadProfile
 def empty_graph():
     fig = make_subplots()
     fig.update_layout(
-        xaxis={'visible': False},
+        xaxis={
+            'visible': False
+        },
         yaxis={'visible': False},
         margin=dict(t=25, b=38, l=0, r=0),
-        modebar={'orientation': 'v'}
+        modebar={'orientation': 'v'},
+        plot_bgcolor='#FFFFFF'
     )
     return fig
 
@@ -68,8 +71,11 @@ def overview_figure(session, meter_id, kind='bar', fill=False, markers=False):
         hovermode='x',
         modebar={'orientation': 'v'},
         yaxis={
-            'tickformat': '.2f'
-        }
+            'tickformat': '.2f',
+            'tickcolor': '#E1E1E1',
+            'gridcolor': '#E1E1E1'
+        },
+        plot_bgcolor='#FFFFFF'
     )
 
     return fig
@@ -124,7 +130,7 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
             dlp_data = dlp_data.mul(1E-3).resample(rule).sum()  # Scale to kWh before resampling
 
             fig.add_trace(
-                go.Bar(x=dlp_data.index, y=dlp_data.values, name="Standardlastprofil", marker={'color': '#AB63FA'},
+                go.Bar(x=dlp_data.index, y=dlp_data.values, name="Standardlastprofil", marker={'color': '#B3B8F6'},
                        hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}"),
                 secondary_y=False
             )
@@ -146,13 +152,18 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
         hovermode='x',
         modebar={'orientation': 'v'},
         yaxis={
-            'tickformat': '.2f'
+            'tickformat': '.2f',
+            'tickcolor': '#E1E1E1',
+            'gridcolor': '#E1E1E1'
         },
         yaxis2={
             'showexponent': 'none',
             'exponentformat': 'none',
-            'tickformat': '.f'
-        }
+            'tickformat': '.f',
+            'tickcolor': '#E1E1E1',
+            'gridcolor': '#E1E1E1'
+        },
+        plot_bgcolor='#FFFFFF'
     )
 
     return fig
