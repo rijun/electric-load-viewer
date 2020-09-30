@@ -20,11 +20,11 @@ def empty_graph():
     return fig
 
 
-def overview_figure(session, meter_id, kind='bar', fill=False, markers=False):
+def overview_figure(meter_id, kind='bar', fill=False, markers=False):
     # Create empty figure with secondary y-axis
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-    df = dh.overview(session, meter_id)
+    df = dh.overview(meter_id)
 
     # Set x-axis title
     fig.update_xaxes(title_text="Datum")
@@ -81,7 +81,7 @@ def overview_figure(session, meter_id, kind='bar', fill=False, markers=False):
     return fig
 
 
-def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: bool, default_load_profile: bool):
+def detail_figure(meter_id: str, date: str, quarter: bool, meter: bool, default_load_profile: bool):
     # Create figure with secondary y-axis
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -93,7 +93,7 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
 
     # Filter incomplete request
     if date is not None:
-        day = dh.day(session, meter_id, date)
+        day = dh.day(meter_id, date)
 
         if quarter:
             rule = '15T'
@@ -126,7 +126,7 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
 
         if default_load_profile:
             dlp = DefaultLoadProfile()
-            dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage(session, meter_id), shift=True)
+            dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage(meter_id), shift=True)
             dlp_data = dlp_data.mul(1E-3).resample(rule).sum()  # Scale to kWh before resampling
 
             fig.add_trace(
@@ -169,19 +169,18 @@ def detail_figure(session: str, meter_id: str, date: str, quarter: bool, meter: 
     return fig
 
 
-def table_data(session: str, meter_id: str, date: str, quarter: bool) -> list:
+def table_data(meter_id: str, date: str, quarter: bool) -> list:
     """
     Return the data for the given date as a list of dictionaries. If quarter is true, values are aggregated to 15
     minutes, otherwise the aggregation is hourly.
 
-    :param session:
     :param meter_id:
     :param date: Requested date as a string.
     :param quarter: Aggregate to 15 minute values.
     :return: List of dictionaries with the keys date_time, obis_180 and diff.
     """
     if date is not None:
-        day = dh.day(session, meter_id, date).copy(deep=True)
+        day = dh.day(meter_id, date).copy(deep=True)
 
         if quarter:
             rule = '15T'
@@ -189,7 +188,7 @@ def table_data(session: str, meter_id: str, date: str, quarter: bool) -> list:
             rule = '60T'
 
         dlp = DefaultLoadProfile()
-        dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage(session, meter_id), shift=True)
+        dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage(meter_id), shift=True)
         day['dlp'] = dlp_data.mul(1E-3)   # Scale to kWh
 
         td = day.resample(rule)\

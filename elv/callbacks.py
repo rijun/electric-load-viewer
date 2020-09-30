@@ -25,7 +25,6 @@ def date_from_range_slider(slider_data: dict) -> Tuple[Optional[datetime], Optio
         end_date = slider_data['xaxis.range[1]']
     else:
         return None, None
-
     return date_from_str(start_date), date_from_str(end_date)
 
 
@@ -60,7 +59,7 @@ def date_from_str(date_str: str) -> Optional[datetime]:
               [Input('meter-selector', 'value')])
 def update_user_info(meter_id):
     if meter_id == '':
-        return ''
+        return "Bitte einen Zählpunkt auswählen..."
     m = dh.meter_info(meter_id)
     return f"{m[1]} {m[0]}, {m[2]} {m[3]}"
 
@@ -68,7 +67,7 @@ def update_user_info(meter_id):
 @app.callback(Output('content', 'style'),
               [Input('select-meter', 'n_clicks')],
               [State('meter-selector', 'value')])
-def change_overview_figure(n_clicks, meter):
+def change_overview_visibility(n_clicks, meter):
     if n_clicks is None or meter == '':
         return {'display': 'none'}
     else:
@@ -79,26 +78,24 @@ def change_overview_figure(n_clicks, meter):
               [Input('select-meter', 'n_clicks'),
                Input('type-dropdown', 'value'),
                Input('style-dropdown', 'value')],
-              [State('session-id', 'children'),
-               State('meter-selector', 'value')])
-def change_overview_figure(n_clicks, plot_type, style, session, meter):
+              [State('meter-selector', 'value')])
+def change_overview_figure(n_clicks, plot_type, style, meter):
     if n_clicks is None or meter == '':
         return figures.empty_graph()
     fill = True if 'fill' in style else False
     markers = True if 'markers' in style else False
-    return figures.overview_figure(session, meter, kind=plot_type, fill=fill, markers=markers)
+    return figures.overview_figure(meter, kind=plot_type, fill=fill, markers=markers)
 
 
 @app.callback([Output('date-picker-single', 'initial_visible_month'),
                Output('date-picker-single', 'min_date_allowed'),
                Output('date-picker-single', 'max_date_allowed')],
               [Input('select-meter', 'n_clicks')],
-              [State('session-id', 'children'),
-               State('meter-selector', 'value')])
-def update_date_picker_limits(n_clicks, session, meter):
+              [State('meter-selector', 'value')])
+def update_date_picker_limits(n_clicks, meter):
     if n_clicks is None or meter == '':
         return None, None, None
-    return dh.last_date(session, meter), dh.first_date(session, meter), dh.last_date(session, meter)
+    return dh.last_date(meter), dh.first_date(meter), dh.last_date(meter)
 
 
 @app.callback([Output('min-span-overview', 'children'),
@@ -107,30 +104,28 @@ def update_date_picker_limits(n_clicks, session, meter):
                Output('sum-span-overview', 'children')],
               [Input('graph-overview', 'relayoutData'),
                Input('select-meter', 'n_clicks')],
-              [State('session-id', 'children'),
-               State('meter-selector', 'value')])
-def update_stats_overview(relayout_data, n_clicks, session, meter):
+              [State('meter-selector', 'value')])
+def update_stats_overview(relayout_data, n_clicks, meter):
     """Update minimum value display."""
-    start_date, end_date = date_from_range_slider(relayout_data)
     if n_clicks is None or meter == '':
         return '-', '-', '-', '-'
-    else:
-        return dh.min(session, meter, start_date, end_date), \
-               dh.max(session, meter, start_date, end_date), \
-               dh.mean(session, meter, start_date, end_date), \
-               dh.sum(session, meter, start_date, end_date)
+    start_date, end_date = date_from_range_slider(relayout_data)
+    df = dh.overview(meter, start_date, end_date)
+    return round(float(df['diff'].min()), 2), \
+           round(float(df['diff'].max()), 2), \
+           round(float(df['diff'].mean()), 2), \
+           round(float(df['diff'].sum()), 2)
 
 
 @app.callback(Output('date-picker-single', 'date'),
               [Input('graph-overview', 'clickData')],
-              [State('session-id', 'children'),
-               State('meter-selector', 'value')])
-def display_click_data(click_data, session, meter):
+              [State('meter-selector', 'value')])
+def display_click_data(click_data, meter):
     """Change the date-picker-single date to the date selected on the overview graph."""
     if meter == '':
         return None
     elif not click_data:
-        return dh.last_date(session, meter)
+        return dh.last_date(meter)
     else:
         return click_data['points'][0]['x']
 
@@ -138,16 +133,15 @@ def display_click_data(click_data, session, meter):
 @app.callback(Output('graph-detail', 'figure'),
               [Input('date-picker-single', 'date'),
                Input('detail-toggle', 'value')],
-              [State('session-id', 'children'),
-               State('meter-selector', 'value')])
-def update_detail_graph(date, selector, session, meter):
+              [State('meter-selector', 'value')])
+def update_detail_graph(date, selector, meter):
     """Update the detail graph."""
     if meter == '':
         return figures.empty_graph()
     m = True if 'meter' in selector else False
     q = True if 'quarter' in selector else False
     d = True if 'dlp' in selector else False
-    return figures.detail_figure(session, meter, date, quarter=q, meter=m, default_load_profile=d)
+    return figures.detail_figure(meter, date, quarter=q, meter=m, default_load_profile=d)
 
 
 @app.callback([Output('min-span-detail', 'children'),
@@ -156,13 +150,12 @@ def update_detail_graph(date, selector, session, meter):
                Output('sum-span-detail', 'children')],
               [Input('date-picker-single', 'date'),
                Input('detail-toggle', 'value')],
-              [State('session-id', 'children'),
-               State('meter-selector', 'value')])
-def update_detail_stats(date, selector, session, meter):
+              [State('meter-selector', 'value')])
+def update_detail_stats(date, selector, meter):
     """Update the detail statistics."""
     if meter == '':
         return '-', '-', '-', '-'
-    df = dh.day(session, meter, date)
+    df = dh.day(meter, date)
     if 'quarter' in selector:
         rule = '15T'
     else:
@@ -177,14 +170,13 @@ def update_detail_stats(date, selector, session, meter):
 @app.callback(Output('table', 'data'),
               [Input('date-picker-single', 'date'),
                Input('detail-toggle', 'value')],
-              [State('session-id', 'children'),
-               State('meter-selector', 'value')])
-def update_table_data(date, selector, session, meter):
+              [State('meter-selector', 'value')])
+def update_table_data(date, selector, meter):
     """Update the detail table."""
     if meter == '':
         return
     q = True if 'quarter' in selector else False
-    return figures.table_data(session, meter, date, quarter=q)
+    return figures.table_data(meter, date, quarter=q)
 
 
 @app.callback(Output('table', 'columns'),
