@@ -17,7 +17,7 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    session_id = str(uuid.uuid4())
+    session_id = str(uuid.uuid4())  # Currently unused, left for future reference
     if pathname == '/':
         return html.Div(children=[
             html.Div(session_id, id='session-id', style={'display': 'none'}),

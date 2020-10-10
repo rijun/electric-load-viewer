@@ -6,6 +6,24 @@ from elv import dh
 from default_load_profile import DefaultLoadProfile
 
 
+def yearly_energy_usage(meter_id: str):
+    """
+    Calculate the previous yearly energy usage.
+
+    If the number of days in the dataset is > 365 (one year), the sum of all meter values for the last 365 days is
+    returned. Otherwise, the currently stored meter values are summed up and interpolated to the a duration of one
+    year.
+    """
+    df = dh.overview(meter_id)
+    if df.index.size < 365:  # Dataset smaller than one year
+        energy_used = df.sum(axis=1).div(4).sum()
+        energy_used = energy_used / df.index.size * 365  # Scale to one year
+    else:
+        energy_used = df.iloc[-366:-1].sum(axis=1).div(
+            4).sum()  # Calculate sum of last 365 values
+    return round(energy_used / 1000, 2)  # Convert Wh to kWh
+
+
 def empty_graph():
     fig = make_subplots()
     fig.update_layout(
@@ -126,7 +144,7 @@ def detail_figure(meter_id: str, date: str, quarter: bool, meter: bool, default_
 
         if default_load_profile:
             dlp = DefaultLoadProfile()
-            dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage(meter_id), shift=True)
+            dlp_data = dlp.calculate_profile(date, yearly_energy_usage(meter_id), shift=True)
             dlp_data = dlp_data.mul(1E-3).resample(rule).sum()  # Scale to kWh before resampling
 
             fig.add_trace(
@@ -188,7 +206,7 @@ def table_data(meter_id: str, date: str, quarter: bool) -> list:
             rule = '60T'
 
         dlp = DefaultLoadProfile()
-        dlp_data = dlp.calculate_profile(date, dh.yearly_energy_usage(meter_id), shift=True)
+        dlp_data = dlp.calculate_profile(date, yearly_energy_usage(meter_id), shift=True)
         day['dlp'] = dlp_data.mul(1E-3)   # Scale to kWh
 
         td = day.resample(rule)\
