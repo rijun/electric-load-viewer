@@ -28,7 +28,11 @@ class DefaultLoadProfile:
         static_profile_values = self._static_profile_values(date, energy_usage)
         profile_values = static_profile_values.mul(self._dynamization_factor(date)).round(1)
 
-        # Adjust index
+        # Handle daylight saving times switch
+        if date.month == 3 and date.day >= 25 and date.weekday() == 6:  # Check if date is the last sunday of march
+            profile_values.loc['2:15':'3:00'] = 0
+
+        # Adjust index if necessary
         if shift:
             idx = pd.date_range(date, date + datetime.timedelta(1), freq='15T')[:-1]
         else:
