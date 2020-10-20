@@ -7,8 +7,6 @@ import pandas as pd
 
 
 class DefaultLoadProfile:
-    _holidays = holidays.Germany()
-
     def __init__(self):
         """
         A class to calculate the default load profile of a given day.
@@ -49,10 +47,10 @@ class DefaultLoadProfile:
         return self._static_profile_values(date, energy_usage) \
             .mul(self._dynamic_lookup.loc[date.timetuple().tm_yday]['value']).round(1)
 
-    @classmethod
-    def _day_type(cls, d):
+    @staticmethod
+    def _day_type(d):
         """Returns the type of day according to the default load profile specifications."""
-        if d in cls._holidays or d.isoweekday() == 7:
+        if d in holidays.Germany() or d.isoweekday() == 7:
             return "sunday"
         # Handle christmas eve
         elif d.month == 12 and d.day == 24 and d.weekday() != 6:

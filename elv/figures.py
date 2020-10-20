@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from elv import dh
-from default_load_profile import DefaultLoadProfile
+from dlp import DefaultLoadProfile
 
 
 def yearly_energy_usage(meter_id: str):

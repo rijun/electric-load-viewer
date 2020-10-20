@@ -4,12 +4,12 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 
-import default_load_profile
+from dlp import DefaultLoadProfile
 
 
 class TestDefaultLoadProfile(TestCase):
     def setUp(self):
-        self.dlp = default_load_profile.DefaultLoadProfile()
+        self.dlp = DefaultLoadProfile()
 
     def test_calculate_profile(self):
         sample_df = pd.read_csv(pathlib.Path('default_load_profiles') / 'sample.csv')
