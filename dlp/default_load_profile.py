@@ -9,11 +9,11 @@ import pandas as pd
 class DefaultLoadProfile:
     def __init__(self):
         """
-        A class to calculate the default load profile of a given day.
+        Class to calculate the default load profile of a given day.
         """
         p = pathlib.Path(os.path.realpath(__file__)).parent
         self._static_lookup = pd.read_csv(p / 'profile.csv', header=[0, 1], index_col=0).transpose()
-        self._dynamic_lookup = pd.read_csv(p / 'dynamisierung.csv').set_index('day_no')
+        self._dynamic_lookup = pd.read_csv(p / 'factors.csv').set_index('day_no')
 
     def calculate_profile(self, date: str, energy_usage: float = 1000, shift=False):
         """
@@ -25,27 +25,27 @@ class DefaultLoadProfile:
         :return: Pandas series with the default load profile values for the passed day
         """
         date = datetime.date.fromisoformat(date)
-        ret_data = self._dynamic_profile_values(date, energy_usage)
+        static_profile_values = self._static_profile_values(date, energy_usage)
+        profile_values = static_profile_values.mul(self._dynamization_factor(date)).round(1)
 
         # Adjust index
         if shift:
             idx = pd.date_range(date, date + datetime.timedelta(1), freq='15T')[:-1]
         else:
             idx = pd.date_range(date, date + datetime.timedelta(1), freq='15T')[1:]
-        ret_data.index = idx
+        profile_values.index = idx
 
-        return ret_data
+        return profile_values
 
     def _static_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
-        """Calculate the static profile values for the provided day."""
-        ret_values = self._static_lookup.loc[self._season_type(date), self._day_type(date)]
-        ret_values = ret_values.mul(energy_usage / 1000)    # Account for normalization
-        return ret_values
+        """Returns the static profile values for the provided day."""
+        values = self._static_lookup.loc[self._season_type(date), self._day_type(date)]
+        values = values.mul(energy_usage / 1000)    # Account for normalization
+        return values
 
-    def _dynamic_profile_values(self, date: datetime.date, energy_usage: float) -> pd.Series:
-        """Calculate the dynamic profile values for the provided day."""
-        return self._static_profile_values(date, energy_usage) \
-            .mul(self._dynamic_lookup.loc[date.timetuple().tm_yday]['value']).round(1)
+    def _dynamization_factor(self, date: datetime.date) -> pd.Series:
+        """Returns the dynamization factor for the provided day."""
+        return self._dynamic_lookup.loc[date.timetuple().tm_yday]['value']
 
     @staticmethod
     def _day_type(d):
