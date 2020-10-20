@@ -13,8 +13,7 @@ class DataHandler:
         p = pathlib.Path(os.path.realpath(__file__)).parent
         self._db_path = p / '..' / 'itp.db'
         if not self._db_path.exists():
-            print("Database file not found! Exiting...")
-            exit(-1)
+            raise ValueError("Database file not found.")
 
     def meters_in_database(self) -> list:
         """Return a list of all meter ids in the database."""
