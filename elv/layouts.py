@@ -1,152 +1,178 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
+import dash_bootstrap_components as dbc
 
 from elv import dh
 
-main_layout = html.Div(children=[
-    html.Div(className="container", style={'padding-top': '2rem'}, children=[
-        html.H3("Digitale Lastgangsanzeige"),
-        html.Hr(),
-        html.Div(className="header-bar", children=[
-            html.Div(className="row", children=[
+main_layout = dbc.Container(className=["pt-3"], children=[
+    dbc.Row(
+        dbc.Col(
+            html.H3("Digitale Lastgangsanzeige")
+        )
+    ),
+    html.Div(children=[
+        dbc.Row([
+            dbc.Col(
                 dcc.Dropdown(
                     id='meter-selector',
-                    className="four columns",
                     options=[{'label': x, 'value': x} for x in dh.meters_in_database()],
                     value='',
                     placeholder='Zähler auswählen...',
                     clearable=False
                 ),
-                html.Div(id='user-info', className="four columns user-display"),
-                html.Button('Auswählen', id='select-meter', className="four columns button-primary"),
-            ]),
+                md=4,
+                className="mb-2 mb-md-0"
+            ),
+            dbc.Col(
+                html.Span(id='user-info'),
+                md=4,
+                className="mb-2 mb-md-0 align-center"
+            ),
+            dbc.Col(
+                dbc.Button('Auswählen', id='select-meter', color='primary', block=True),
+                md=4
+            )
         ]),
-        html.Hr(),
-        html.Div(style={'display': 'none'}, id='content', children=[
-            html.H4("Übersicht", className="section-header"),
-            dcc.Loading(type="graph", children=[
-                dcc.Graph(id='graph-overview', config={'displaylogo': False, 'locale': 'de-DE'}),
-            ]),
-            html.Table(className="u-full-width", style={'margin-bottom': '2.5rem'}, children=[
-                html.Thead([
-                    html.Th("Minimum"),
-                    html.Th("Maximum"),
-                    html.Th("Durchschnitt"),
-                    html.Th("Summe")
-                ]),
-                html.Tbody([
-                    html.Td([html.Span(id='min-span-overview'), " kW"]),
-                    html.Td([html.Span(id='max-span-overview'), " kW"]),
-                    html.Td([html.Span(id='mean-span-overview'), " kW"]),
-                    html.Td([html.Span(id='sum-span-overview'), " kW"]),
-                ])
-            ]),
-            html.Div(className="row button-container", style={'display': 'none'}, children=[
-                dcc.Dropdown(
-                    id='type-dropdown',
-                    className="four columns",
-                    options=[
-                        {'label': 'Balken', 'value': 'bar'},
-                        {'label': 'Linie', 'value': 'line'},
-                    ],
-                    value='bar',
-                    clearable=False,
-                    searchable=False
+        html.Hr()
+    ], className="sticky-top bg-white pt-3"),
+    html.Div(style={'display': 'none'}, id='content', children=[
+        dbc.Card(
+            dbc.CardBody(children=[
+                dbc.Row(
+                    dbc.Col(
+                        html.H4("Übersicht", className="section-header"),
+                    )
                 ),
-                dcc.Dropdown(
-                    id='style-dropdown',
-                    className="four columns",
-                    options=[
-                        {'label': 'Füllen', 'value': 'fill'},
-                        {'label': 'Linie+Punkte', 'value': 'markers'},
-                    ],
-                    placeholder="Stil...",
-                    value=[],
-                    multi=True
-                )
-            ]),
-            html.H4("Tagesansicht", className="section-header"),
-            html.Div(style={'margin': '1rem 0', 'display': 'flex', 'justify-content': 'space-between',
-                            'align-items': 'center'}, children=[
-                html.Div(children=[
-                    dcc.DatePickerSingle(
-                        id='date-picker-single',
-                        className="div-vert-align",
-                        display_format="DD.MM.YYYY",
-                        month_format="MM.YYYY",
-                        placeholder='Datum',
-                        style={'height': '36px'}
+                dbc.Row(
+                    dbc.Col(
+                        dcc.Loading(type="graph", children=[
+                            dcc.Graph(id='graph-overview', config={'displaylogo': False, 'locale': 'de-DE'}),
+                        ]),
+                    ),
+                    className="mb-2"
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        dbc.Table(children=[
+                            html.Thead([
+                                html.Th("Minimum"),
+                                html.Th("Maximum"),
+                                html.Th("Durchschnitt"),
+                                html.Th("Summe")
+                            ]),
+                            html.Tbody([
+                                html.Td([html.Span(id='min-span-overview'), " kW"]),
+                                html.Td([html.Span(id='max-span-overview'), " kW"]),
+                                html.Td([html.Span(id='mean-span-overview'), " kW"]),
+                                html.Td([html.Span(id='sum-span-overview'), " kW"]),
+                            ])
+                        ], responsive='md', className="mb-0")
                     )
-                ]),
-                html.Div(children=[
-                    dcc.Checklist(
-                        id='detail-toggle',
-                        options=[
-                            {'label': 'Viertelstunden', 'value': 'quarter'},
-                            {'label': 'Zählerwerte', 'value': 'meter'},
-                            {'label': 'Standardlastprofil', 'value': 'dlp'},
-                        ],
-                        value=[]
+                )
+            ], className="mb-0"),
+            className="mb-3"
+        ),
+        dbc.Card(
+            dbc.CardBody(children=[
+                dbc.Row(
+                    dbc.Col(
+                        html.H4("Tagesansicht", className="section-header"),
+                    )
+                ),
+                dbc.Row(children=[
+                    dbc.Col(
+                        dcc.DatePickerSingle(
+                            id='date-picker-single',
+                            display_format="DD.MM.YYYY",
+                            month_format="MM.YYYY",
+                            placeholder='Datum'
+                        ),
+                        xs=6, md=4
+                    ),
+                    dbc.Col(
+                        dcc.Dropdown(
+                            id='detail-toggle',
+                            options=[
+                                {'label': 'Viertelstunden', 'value': 'quarter'},
+                                {'label': 'Zählerwerte', 'value': 'meter'},
+                                {'label': 'Standardlastprofil', 'value': 'dlp'},
+                            ],
+                            value=[],
+                            placeholder="Optionen...",
+                            multi=True
+                        ),
+                        xs=6, md=4
+                    )
+                ], justify='between', className="mb-3"),
+                dbc.Row(children=[
+                    dbc.Col(
+                        dcc.Loading(type="graph", children=[
+                            dcc.Graph(id='graph-detail', config={'displaylogo': False, 'locale': 'de-DE'}),
+                        ])
+                    )
+                ], className="mb-2"),
+                dbc.Row(children=[
+                    dbc.Col(
+                        dbc.Table(children=[
+                            html.Thead([
+                                html.Th("Minimum"),
+                                html.Th("Maximum"),
+                                html.Th("Durchschnitt"),
+                                html.Th("Summe")
+                            ]),
+                            html.Tbody([
+                                html.Td([html.Span(id='min-span-detail'), " kW"]),
+                                html.Td([html.Span(id='max-span-detail'), " kW"]),
+                                html.Td([html.Span(id='mean-span-detail'), " kW"]),
+                                html.Td([html.Span(id='sum-span-detail'), " kW"]),
+                            ])
+                        ], responsive='md')
+                    )
+                ], className="mb-1"),
+                dbc.Row(children=[
+                    dbc.Col(
+                        dash_table.DataTable(
+                            id='table',
+                            columns=[
+                                {
+                                    'name': "Zeitpunkt",
+                                    'id': 'date_time'
+                                }, {
+                                    'name': "Zählerstand [kWh]",
+                                    'id': 'obis_180'
+                                }, {
+                                    'name': "Zählervorschub [kWh / h]",
+                                    'id': 'diff'
+                                }, {
+                                    'name': "Standardlastprofil [kWh / h]",
+                                    'id': 'dlp'
+                                }
+                            ],
+                            page_size=24,
+                            sort_action='native',
+                            cell_selectable=False,
+                            style_data_conditional=[
+                                {
+                                    'if': {'row_index': 'odd'},
+                                    'backgroundColor': 'rgb(248, 248, 248)'
+                                }
+                            ],
+                            style_header={
+                                'backgroundColor': 'rgb(230, 230, 230)',
+                                'fontWeight': 'bold'
+                            },
+                            style_cell={
+                                'font-family': '"Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                                'overflow': 'hidden',
+                                'textOverflow': 'ellipsis',
+                                'maxWidth': 0
+                            }
+                        ),
+                        className="mx-3"
                     )
                 ])
-            ]),
-            dcc.Loading(type="graph", children=[
-                dcc.Graph(id='graph-detail', config={'displaylogo': False, 'locale': 'de-DE'}),
-            ]),
-            html.Table(className="u-full-width", style={'margin-bottom': '2.5rem'}, children=[
-                html.Thead([
-                    html.Th("Minimum"),
-                    html.Th("Maximum"),
-                    html.Th("Durchschnitt"),
-                    html.Th("Summe")
-                ]),
-                html.Tbody([
-                    html.Td([html.Span(id='min-span-detail'), " kW"]),
-                    html.Td([html.Span(id='max-span-detail'), " kW"]),
-                    html.Td([html.Span(id='mean-span-detail'), " kW"]),
-                    html.Td([html.Span(id='sum-span-detail'), " kW"]),
-                ])
-            ]),
-            html.Div(className="row", children=[
-                dash_table.DataTable(
-                    id='table',
-                    columns=[
-                        {
-                            'name': "Zeitpunkt",
-                            'id': 'date_time'
-                        }, {
-                            'name': "Zählerstand [kWh]",
-                            'id': 'obis_180'
-                        }, {
-                            'name': "Zählervorschub [kWh / h]",
-                            'id': 'diff'
-                        }, {
-                            'name': "Standardlastprofil [kWh / h]",
-                            'id': 'dlp'
-                        }
-                    ],
-                    page_size=24,
-                    sort_action='native',
-                    cell_selectable=False,
-                    style_data_conditional=[
-                        {
-                            'if': {'row_index': 'odd'},
-                            'backgroundColor': 'rgb(248, 248, 248)'
-                        }
-                    ],
-                    style_header={
-                        'backgroundColor': 'rgb(230, 230, 230)',
-                        'fontWeight': 'bold'
-                    },
-                    style_cell={
-                        'font-family': '"Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif',
-                        'overflow': 'hidden',
-                        'textOverflow': 'ellipsis',
-                        'maxWidth': 0
-                    }
-                )
             ])
-        ])
+        )
     ])
 ])

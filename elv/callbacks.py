@@ -75,16 +75,12 @@ def change_overview_visibility(n_clicks, meter):
 
 
 @app.callback(Output('graph-overview', 'figure'),
-              [Input('select-meter', 'n_clicks'),
-               Input('type-dropdown', 'value'),
-               Input('style-dropdown', 'value')],
+              [Input('select-meter', 'n_clicks')],
               [State('meter-selector', 'value')])
-def change_overview_figure(n_clicks, plot_type, style, meter):
+def change_overview_figure(n_clicks, meter):
     if n_clicks is None or meter == '':
         return figures.empty_graph()
-    fill = True if 'fill' in style else False
-    markers = True if 'markers' in style else False
-    return figures.overview_figure(meter, kind=plot_type, fill=fill, markers=markers)
+    return figures.overview_figure(meter)
 
 
 @app.callback([Output('date-picker-single', 'initial_visible_month'),

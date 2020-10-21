@@ -63,9 +63,9 @@ def overview_figure(meter_id, kind='bar', fill=False, markers=False):
         )
     else:
         if df['interpolation'].any():
-            colors = df['interpolation'].map({False: '#636EFA', True: '#EF553B'})
+            colors = df['interpolation'].map({False: '#007BFF', True: '#EF553B'})
         else:
-            colors = '#636EFA'
+            colors = '#007BFF'
 
         fig.add_trace(
             go.Bar(x=x_values, y=df['diff'], name="Lastgang", hovertemplate="%{y} kWh / Tag", marker_color=colors)
@@ -123,9 +123,9 @@ def detail_figure(meter_id: str, date: str, quarter: bool, meter: bool, default_
         x_values = day.index
 
         if day['interpolation'].any():
-            colors = day['interpolation'].map({False: '#636EFA', True: '#EF553B'})
+            colors = day['interpolation'].map({False: '#007BFF', True: '#EF553B'})
         else:
-            colors = '#636EFA'
+            colors = '#007BFF'
 
         # Add traces
         fig.add_trace(
