@@ -50,8 +50,9 @@ main_layout = dbc.Container(className=["pt-3"], children=[
                             dcc.Graph(id='graph-overview', config={'displaylogo': False, 'locale': 'de-DE'}),
                         ]),
                     ),
-                    className="mb-2"
+                    className="mb-3"
                 ),
+                html.Hr(),
                 dbc.Row(
                     dbc.Col(
                         dbc.Table(children=[
@@ -69,8 +70,9 @@ main_layout = dbc.Container(className=["pt-3"], children=[
                             ])
                         ], responsive='md', className="mb-0")
                     )
-                )
-            ], className="mb-0"),
+                ),
+                html.Hr(),
+            ], className="pb-0"),
             className="mb-3"
         ),
         dbc.Card(
@@ -111,7 +113,8 @@ main_layout = dbc.Container(className=["pt-3"], children=[
                             dcc.Graph(id='graph-detail', config={'displaylogo': False, 'locale': 'de-DE'}),
                         ])
                     )
-                ], className="mb-2"),
+                ], className="mb-3"),
+                html.Hr(),
                 dbc.Row(children=[
                     dbc.Col(
                         dbc.Table(children=[
@@ -127,9 +130,10 @@ main_layout = dbc.Container(className=["pt-3"], children=[
                                 html.Td([html.Span(id='mean-span-detail'), " kW"]),
                                 html.Td([html.Span(id='sum-span-detail'), " kW"]),
                             ])
-                        ], responsive='md')
+                        ], responsive='md', className="mb-0")
                     )
-                ], className="mb-1"),
+                ]),
+                html.Hr(),
                 dbc.Row(children=[
                     dbc.Col(
                         dash_table.DataTable(
@@ -169,7 +173,7 @@ main_layout = dbc.Container(className=["pt-3"], children=[
                                 'maxWidth': 0
                             }
                         ),
-                        className="mx-3"
+                        className="mx-3 mt-2"
                     )
                 ])
             ])
