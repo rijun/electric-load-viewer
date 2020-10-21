@@ -10,8 +10,12 @@ import arrow
 class DataHandler:
     def __init__(self):
         """Class to retrieve and prepare the meter data for later use in the callbacks."""
-        p = pathlib.Path(os.path.realpath(__file__)).parent
-        self._db_path = p / '..' / 'itp.db'
+        database_filename = "itp.db"
+        if os.environ.get('DOCKER_CONTAINER', False):
+            self._db_path = pathlib.Path('/app') / database_filename
+        else:
+            p = pathlib.Path(os.path.realpath(__file__)).parent
+            self._db_path = p / '..' / database_filename
         if not self._db_path.exists():
             raise ValueError("Database file not found.")
 
