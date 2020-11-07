@@ -8,3 +8,9 @@ services:
       - type: bind
         source: ./itp.db
         target: /app/itp.db
+
+
+networks:
+
+# sudo docker run --name elv_dash --network elv_network -v "$(pwd)"/itp.db:/app/itp.db:z --rm -d elv_dash
+# sudo docker run --name elv_nginx --network elv_network -p 80:80 --rm -d elv_nginx
