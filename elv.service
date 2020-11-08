@@ -1,0 +1,16 @@
+[Unit]
+Description=ELV Server for Raspberry Pi
+Requires=network.target
+After=network.target
+
+[Service]
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+WorkingDirectory=/home/pi/electric-load-viewer
+ExecStart=/home/pi/electric-load-viewer/venv/bin/uwsgi /home/pi/electric-load-viewer/uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target
