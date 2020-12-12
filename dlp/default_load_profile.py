@@ -9,11 +9,12 @@ import pandas as pd
 class DefaultLoadProfile:
     def __init__(self):
         """
-        Class to calculate the default load profile of a given day.
+        Class to calculate the default load profile of a given day for the household customer group.
+        Uses the data of two .csv files as lookup tables for the load profile data, these files must be present.
         """
-        p = pathlib.Path(os.path.realpath(__file__)).parent
-        self._static_lookup = pd.read_csv(p / 'profile.csv', header=[0, 1], index_col=0).transpose()
-        self._dynamic_lookup = pd.read_csv(p / 'factors.csv').set_index('day_no')
+        parent = pathlib.Path(os.path.realpath(__file__)).parent
+        self._static_lookup = pd.read_csv(parent / 'profile.csv', header=[0, 1], index_col=0).transpose()
+        self._dynamic_lookup = pd.read_csv(parent / 'factors.csv').set_index('day_no')
 
     def calculate_profile(self, date: str, energy_usage: float = 1000, shift=False):
         """
@@ -22,7 +23,7 @@ class DefaultLoadProfile:
         :param date: Date for which the default load profile should be calculated
         :param energy_usage: Yearly energy usage in kWh, defaults to 1000 kWh if not specified.
         :param shift: Shift the index by 15 minutes to the left, e.g. 0:00-23:45 instead of 0:15-0:00
-        :return: Pandas series with the default load profile values for the passed day
+        :return: Pandas series with the default load profile values for the given day
         """
         date = datetime.date.fromisoformat(date)
         static_profile_values = self._static_profile_values(date, energy_usage)
