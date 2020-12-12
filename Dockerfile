@@ -1,5 +1,4 @@
 # docker run -p 80:80 -v "$(pwd)"/itp.db:/app/itp.db --rm -d elv
-
 FROM ubuntu:latest
 
 WORKDIR /app
