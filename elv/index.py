@@ -17,6 +17,7 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
+    """Display page, necessary when using multi-module apps."""
     session_id = str(uuid.uuid4())  # Currently unused, left for future reference
     if pathname == '/':
         return html.Div(children=[

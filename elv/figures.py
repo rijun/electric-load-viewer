@@ -6,13 +6,16 @@ from elv import dh
 from dlp import DefaultLoadProfile
 
 
-def yearly_energy_usage(meter_id: str):
+def yearly_energy_usage(meter_id):
     """
     Calculate the previous yearly energy usage.
 
     If the number of days in the dataset is > 365 (one year), the sum of all meter values for the last 365 days is
     returned. Otherwise, the currently stored meter values are summed up and interpolated to the a duration of one
     year.
+
+    :param meter_id: The ID of the meter in question
+    :return: The yearly energy usage
     """
     df = dh.overview(meter_id)
     if df.index.size < 365:  # Dataset smaller than one year
@@ -25,6 +28,7 @@ def yearly_energy_usage(meter_id: str):
 
 
 def empty_graph():
+    """Return a empty figure as a placeholder."""
     fig = make_subplots()
     fig.update_layout(
         xaxis={
@@ -38,7 +42,13 @@ def empty_graph():
     return fig
 
 
-def overview_figure(meter_id, kind='bar', fill=False, markers=False):
+def overview_figure(meter_id):
+    """
+    Return a Plotly GraphObj showing the full load profile of a given meter.
+
+    :param meter_id: The meter whose profile is to be plotted
+    :return: List of dictionaries with the keys date_time, obis_180 and diff
+    """
     # Create empty figure with secondary y-axis
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -52,25 +62,18 @@ def overview_figure(meter_id, kind='bar', fill=False, markers=False):
 
     x_values = df.index.date
 
-    plot_mode = 'lines+markers' if markers else 'lines'
-    plot_fill = 'tonexty' if fill else 'none'
-
-    # Add traces
-    if kind == 'line':
-        fig.add_trace(
-            go.Scatter(x=x_values, y=df['diff'], name="Lastgang", line={'shape': 'vhv'}, fill=plot_fill,
-                       mode=plot_mode, hovertemplate="%{y} kWh / Tag")
-        )
+    # Color interpolation bars if necessary
+    if df['interpolation'].any():
+        colors = df['interpolation'].map({False: '#007BFF', True: '#EF553B'})
     else:
-        if df['interpolation'].any():
-            colors = df['interpolation'].map({False: '#007BFF', True: '#EF553B'})
-        else:
-            colors = '#007BFF'
+        colors = '#007BFF'
 
-        fig.add_trace(
-            go.Bar(x=x_values, y=df['diff'], name="Lastgang", hovertemplate="%{y} kWh / Tag", marker_color=colors)
-        )
+    # Add trace
+    fig.add_trace(
+        go.Bar(x=x_values, y=df['diff'], name="Lastgang", hovertemplate="%{y} kWh / Tag", marker_color=colors)
+    )
 
+    # Set title
     fig.layout.title = {
         'text': f"{arrow.get(df.index.min()).format('D. MMMM YYYY', locale='de_DE')} -- "
                 f"{arrow.get(df.index.max()).format('D. MMMM YYYY', locale='de_DE')}",
@@ -78,6 +81,7 @@ def overview_figure(meter_id, kind='bar', fill=False, markers=False):
         'xanchor': 'center'
     }
 
+    # Additional figure settings
     fig.update_layout(
         xaxis=dict(
             rangeslider=dict(
@@ -99,7 +103,18 @@ def overview_figure(meter_id, kind='bar', fill=False, markers=False):
     return fig
 
 
-def detail_figure(meter_id: str, date: str, quarter: bool, meter: bool, default_load_profile: bool):
+def detail_figure(meter_id, date, quarter, meter, default_load_profile):
+    """
+    Return a Plotly GraphObj showing the load profile of a given meter for a given day, either as hourly or quarterly
+    values. The meter values and the default load profile can be included as well.
+
+    :param meter_id: The meter whose profile is to be plotted
+    :param date: The date for which the load profile is requested
+    :param quarter: Use quarter hour values, if False hourly values are used
+    :param meter: Show meter values
+    :param default_load_profile: Calculate and show default load profile
+    :return: List of dictionaries with the keys date_time, obis_180 and diff
+    """
     # Create figure with secondary y-axis
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -118,22 +133,25 @@ def detail_figure(meter_id: str, date: str, quarter: bool, meter: bool, default_
         else:
             rule = '60T'
 
+        # Resample to requested interval
         day = day.resample(rule).agg({'obis_180': 'first', 'diff': 'sum', 'interpolation': 'first'})
 
         x_values = day.index
 
+        # Color interpolation bars if necessary
         if day['interpolation'].any():
             colors = day['interpolation'].map({False: '#007BFF', True: '#EF553B'})
         else:
             colors = '#007BFF'
 
-        # Add traces
+        # Add profile trace
         fig.add_trace(
             go.Bar(x=x_values, y=day['diff'], name="Lastgang", marker_color=colors,
                    hovertemplate="%{y}" + f" kWh / {'60 min' if not quarter else '15 min'}"),
             secondary_y=False,
         )
 
+        # Add meter value trace
         if meter:
             fig.add_trace(
                 go.Scatter(x=x_values, y=day['obis_180'], name="Zählerstand", line={'color': '#00CC96'},
@@ -142,6 +160,7 @@ def detail_figure(meter_id: str, date: str, quarter: bool, meter: bool, default_
             )
             fig.update_yaxes(title_text="kWh", secondary_y=True)
 
+        # Add default load profile trace
         if default_load_profile:
             dlp = DefaultLoadProfile()
             dlp_data = dlp.calculate_profile(date, yearly_energy_usage(meter_id), shift=True)
@@ -159,6 +178,7 @@ def detail_figure(meter_id: str, date: str, quarter: bool, meter: bool, default_
             'xanchor': 'center'
         }
 
+    # Additional figure settings
     fig.update_layout(
         legend={
             'x': 0.01,
@@ -187,15 +207,15 @@ def detail_figure(meter_id: str, date: str, quarter: bool, meter: bool, default_
     return fig
 
 
-def table_data(meter_id: str, date: str, quarter: bool) -> list:
+def table_data(meter_id, date, quarter):
     """
     Return the data for the given date as a list of dictionaries. If quarter is true, values are aggregated to 15
     minutes, otherwise the aggregation is hourly.
 
-    :param meter_id:
-    :param date: Requested date as a string.
-    :param quarter: Aggregate to 15 minute values.
-    :return: List of dictionaries with the keys date_time, obis_180 and diff.
+    :param meter_id: The meter whose profile is to be displayed
+    :param date: Requested date as a string
+    :param quarter: Aggregate to 15 minute values
+    :return: DataFrame with date_time, obis_180 and diff
     """
     if date is not None:
         day = dh.day(meter_id, date).copy(deep=True)

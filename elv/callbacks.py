@@ -58,26 +58,29 @@ def date_from_str(date_str: str) -> Optional[datetime]:
 @app.callback(Output('user-info', 'children'),
               [Input('meter-selector', 'value')])
 def update_user_info(meter_id):
+    """Show information of selected user."""
     if meter_id == '':
         return "Bitte einen Zählpunkt auswählen..."
     m = dh.meter_info(meter_id)
-    return f"{m[1]} {m[0]}, {m[2]} {m[3]}"
+    return f"{m[1]} {m[0]}, {m[2]} {m[3]}"  # First name, last name, City, PLZ
 
 
 @app.callback(Output('content', 'style'),
               [Input('select-meter', 'n_clicks')],
               [State('meter-selector', 'value')])
 def change_overview_visibility(n_clicks, meter):
+    """Show graph is meter is selected."""
     if n_clicks is None or meter == '':
-        return {'display': 'none'}
+        return {'display': 'none'}   # Hide graph
     else:
-        return {'display': 'block'}
+        return {'display': 'block'}  # Show graph
 
 
 @app.callback(Output('graph-overview', 'figure'),
               [Input('select-meter', 'n_clicks')],
               [State('meter-selector', 'value')])
 def change_overview_figure(n_clicks, meter):
+    """Show overview figure."""
     if n_clicks is None or meter == '':
         return figures.empty_graph()
     return figures.overview_figure(meter)
@@ -89,6 +92,7 @@ def change_overview_figure(n_clicks, meter):
               [Input('select-meter', 'n_clicks')],
               [State('meter-selector', 'value')])
 def update_date_picker_limits(n_clicks, meter):
+    """Update date picker according to selection in overview figure."""
     if n_clicks is None or meter == '':
         return None, None, None
     return dh.last_date(meter), dh.first_date(meter), dh.last_date(meter)
@@ -102,15 +106,13 @@ def update_date_picker_limits(n_clicks, meter):
                Input('select-meter', 'n_clicks')],
               [State('meter-selector', 'value')])
 def update_stats_overview(relayout_data, n_clicks, meter):
-    """Update minimum value display."""
+    """Update the overview statistics."""
     if n_clicks is None or meter == '':
         return '-', '-', '-', '-'
     start_date, end_date = date_from_range_slider(relayout_data)
     df = dh.overview(meter, start_date, end_date)
-    return round(float(df['diff'].min()), 2), \
-           round(float(df['diff'].max()), 2), \
-           round(float(df['diff'].mean()), 2), \
-           round(float(df['diff'].sum()), 2)
+    return round(float(df['diff'].min()), 2), round(float(df['diff'].max()), 2), \
+           round(float(df['diff'].mean()), 2), round(float(df['diff'].sum()), 2)
 
 
 @app.callback(Output('date-picker-single', 'date'),
@@ -157,10 +159,8 @@ def update_detail_stats(date, selector, meter):
     else:
         rule = '60T'
     df = df.resample(rule).agg({'obis_180': 'first', 'diff': 'sum', 'interpolation': 'first'})
-    return round(float(df['diff'].min()), 2), \
-           round(float(df['diff'].max()), 2), \
-           round(float(df['diff'].mean()), 2), \
-           round(float(df['diff'].sum()), 2)
+    return round(float(df['diff'].min()), 2), round(float(df['diff'].max()), 2), \
+           round(float(df['diff'].mean()), 2), round(float(df['diff'].sum()), 2)
 
 
 @app.callback(Output('table', 'data'),
